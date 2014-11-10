@@ -1,4 +1,4 @@
-package pl.pokerquiz.pokerquiz.gui;
+package pl.pokerquiz.pokerquiz.gui.fragments;
 
 import android.app.Fragment;
 

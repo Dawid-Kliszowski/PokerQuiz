@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PokerQuiz</string>
+    <string name="nickname">nickname</string>
+    <string name="enter_your_nickname">Enter your nickname</string>
+    <string name="no_rooms_found">No rooms found</string>
+    <string name="connected_to">"Connected to "</string>
+    <string name="error_connecting_to">"Error connecting to "</string>
+    <string name="create_room">Create room</string>
+    <string name="enter_room">Enter to existing room</string>
+    <string name="lets_play_the_game">Let\'s play the game...</string>
 
 </resources>

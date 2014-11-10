@@ -1,9 +1,7 @@
-package pl.pokerquiz.pokerquiz.gameLogic;
+package pl.pokerquiz.pokerquiz.networking;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
 
 import com.google.gson.Gson;
 
@@ -20,6 +18,11 @@ import pl.pokerquiz.pokerquiz.BuildConfig;
 import pl.pokerquiz.pokerquiz.Constans;
 import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.events.ServerUnreachableEvent;
+import pl.pokerquiz.pokerquiz.gameLogic.ConfirmationPacket;
+import pl.pokerquiz.pokerquiz.gameLogic.OnServerResponseListener;
+import pl.pokerquiz.pokerquiz.gameLogic.PacketListener;
+import pl.pokerquiz.pokerquiz.gameLogic.ServerStatusConstans;
+import pl.pokerquiz.pokerquiz.gameLogic.SocketPacket;
 
 public abstract class CommunicationBasicService extends Service {
     private static final Gson GSON = new Gson();
