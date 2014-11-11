@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.R;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -67,8 +68,13 @@ public class SplashActivity extends Activity {
 
                         @Override
                         public void onAnimationEnd(Animator animator) {
-                            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            if (((PokerQuizApplication) getApplication()).getAppPrefs().getNickname() != null) {
+                                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(SplashActivity.this, StartupActivity.class);
+                                startActivity(intent);
+                            }
                             finish();
                         }
 

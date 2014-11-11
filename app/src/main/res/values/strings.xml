@@ -9,5 +9,9 @@
     <string name="create_room">Create room</string>
     <string name="enter_room">Enter to existing room</string>
     <string name="lets_play_the_game">Let\'s play the game...</string>
+    <string name="room_name">room name</string>
+    <string name="ok">OK</string>
+    <string name="submit">Submit</string>
+    <string name="settings">Settings</string>
 
 </resources>

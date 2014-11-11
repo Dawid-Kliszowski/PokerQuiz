@@ -35,7 +35,7 @@ public class RoomsListDialogFragment extends DialogFragment {
 
         mDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
         mDialog.setContentView(rootView);
-        mDialog.setCanceledOnTouchOutside(false);
+        mDialog.setCanceledOnTouchOutside(true);
 
         final WindowManager.LayoutParams params = mDialog.getWindow().getAttributes();
         params.width = WindowManager.LayoutParams.WRAP_CONTENT;
@@ -55,6 +55,7 @@ public class RoomsListDialogFragment extends DialogFragment {
     private void scanRooms() {
         final NetworkingManager networkingManager = NetworkingManager.getInstance(getActivity());
 
+        setCancelable(false);
         mLvRooms.setVisibility(View.INVISIBLE);
         mCpbBackground.setIndeterminateProgressMode(true);
         mCpbBackground.setProgress(50);
@@ -63,50 +64,56 @@ public class RoomsListDialogFragment extends DialogFragment {
             if (getActivity() != null) {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     if (rooms.size() > 0) {
-                        List<String> roomNames = new ArrayList<>();
-                        for (PokerRoom room : rooms) {
-                            roomNames.add(room.getRoomName());
-                        }
+                        mCpbBackground.setProgress(0);
 
-                        mLvRooms.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.lvitem_rooms, roomNames));
-                        mLvRooms.setOnItemClickListener((adapterView, view, position, l) -> {
-                            mDialog.setCanceledOnTouchOutside(false);
-                            mLvRooms.setVisibility(View.INVISIBLE);
-                            mCpbBackground.setIndeterminateProgressMode(true);
-                            mCpbBackground.setProgress(50);
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                setCancelable(true);
+                                List<String> roomNames = new ArrayList<>();
+                                for (PokerRoom room : rooms) {
+                                    roomNames.add(room.getRoomName());
+                                }
 
-                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    networkingManager.connectToRoom(new OnRoomConnectedListener(rooms.get(position)) {
+                                mLvRooms.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.lvitem_rooms, roomNames));
+                                mLvRooms.setOnItemClickListener((adapterView, view, position, l) -> {
+                                    setCancelable(false);
+                                    mLvRooms.setVisibility(View.INVISIBLE);
+                                    mCpbBackground.setIndeterminateProgressMode(true);
+                                    mCpbBackground.setProgress(50);
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                         @Override
-                                        public void onRoomConnected(final boolean success, final PokerRoom room) {
-                                            new Handler(Looper.getMainLooper()).post(() -> {
-                                                if (success) {
-                                                    mCpbBackground.setProgress(100);
-                                                    mCpbBackground.setCompleteText(getResources().getString(R.string.connected_to) + room.getRoomName());
-                                                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                                        if (getActivity() != null) {
-                                                            Intent intent = new Intent(getActivity(), RoomActivity.class);
-                                                            startActivity(intent);
-                                                            getActivity().finish();
-                                                            dismiss();
+                                        public void run() {
+                                            networkingManager.connectToRoom(new OnRoomConnectedListener(rooms.get(position)) {
+                                                @Override
+                                                public void onRoomConnected(final boolean success, final PokerRoom room) {
+                                                    new Handler(Looper.getMainLooper()).post(() -> {
+                                                        if (success) {
+                                                            mCpbBackground.setProgress(0);
+                                                            mCpbBackground.setIdleText(getResources().getString(R.string.connected_to) + room.getRoomName());
+                                                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                                                if (getActivity() != null) {
+                                                                    Intent intent = new Intent(getActivity(), RoomActivity.class);
+                                                                    startActivity(intent);
+                                                                    //getActivity().finish(); //todo
+                                                                    dismiss();
+                                                                }
+                                                            }, 2000l);
+                                                        } else {
+                                                            setCancelable(true);
+                                                            mCpbBackground.setProgress(-1);
+                                                            mCpbBackground.setErrorText(getResources().getString(R.string.error_connecting_to) + room.getRoomName());
                                                         }
-                                                    }, 2000l);
-                                                } else {
-                                                    mDialog.setCanceledOnTouchOutside(true);
-                                                    mCpbBackground.setProgress(-1);
-                                                    mCpbBackground.setErrorText(getResources().getString(R.string.error_connecting_to) + room.getRoomName());
+                                                    });
                                                 }
                                             });
                                         }
-                                    });
-                                }
-                            }, 700l);
-                        });
-
-                        mLvRooms.setVisibility(View.VISIBLE);
-                        mCpbBackground.setProgress(0);
+                                    }, 700l);
+                                });
+                                mLvRooms.setVisibility(View.VISIBLE);
+                            }
+                        }, 400l);
                     } else {
                         mCpbBackground.setProgress(-1);
                         mCpbBackground.setErrorText(getResources().getString(R.string.no_rooms_found));

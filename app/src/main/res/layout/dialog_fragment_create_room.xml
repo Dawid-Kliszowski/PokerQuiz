@@ -11,16 +11,31 @@
         android:id="@+id/cpbBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/lvRooms"
-        android:layout_alignBottom="@+id/lvRooms"
+        android:layout_alignTop="@+id/llForm"
+        android:layout_alignBottom="@+id/llForm"
         android:textSize="@dimen/text_size_large"
         app:cpb_cornerRadius="1dp"
         app:cpb_selectorIdle="@color/dark_green"/>
 
-    <ListView
-        android:id="@+id/lvRooms"
+    <LinearLayout
+        android:id="@+id/llForm"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="22dp"/>
+        android:padding="@dimen/margin_medium">
+
+        <EditText
+            android:id="@+id/etRoomName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/room_name"/>
+
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="@string/ok"/>
+        </LinearLayout>
 
 </RelativeLayout>

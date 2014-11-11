@@ -15,11 +15,15 @@ public class SocketPacket {
     @SerializedName("timestamp")
     private long mTimestamp;
 
-    @SerializedName("message")
-    private JSONObject mMessage;
+    @SerializedName("message_type")
+    private String mMessageType;
 
-    public SocketPacket(Object message) throws JSONException {
-        mMessage = new JSONObject(new Gson().toJson(message));
+    @SerializedName("message")
+    private String mMessage;
+
+    public SocketPacket(String messageType, String message) throws JSONException {
+        mMessageType = messageType;
+        mMessage = message;
         mTimestamp = System.currentTimeMillis();
         mChecksum = "" + new Random().nextInt();
     }
@@ -28,7 +32,11 @@ public class SocketPacket {
         return mChecksum;
     }
 
-    public JSONObject getMessage() {
+    public String getMessage() {
         return mMessage;
+    }
+
+    public String getMessageType() {
+        return mMessageType;
     }
 }

@@ -13,4 +13,7 @@
 
     <dimen name="button_padding">8dp</dimen>
     <dimen name="edit_text_padding">8dp</dimen>
+
+    <dimen name="slidingmenu_shadow_width">15dp</dimen>
+    <dimen name="slidingmenu_width">250dp</dimen>
 </resources>

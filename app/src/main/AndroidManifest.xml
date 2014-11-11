@@ -9,6 +9,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme.NoAnimation" >
 
+        <service android:name=".networking.ComunicationClientService"/>
+        <service android:name=".networking.ComunicationServerService"/>
+
         <activity
             android:name=".gui.activities.MainActivity"
             android:screenOrientation="landscape"/>
