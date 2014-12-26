@@ -1,4 +1,4 @@
-package pl.pokerquiz.pokerquiz.gameLogic;
+package pl.pokerquiz.pokerquiz.networking;
 
 public class ServerStatusConstans {
     public static final int STATUS_OK = 200;

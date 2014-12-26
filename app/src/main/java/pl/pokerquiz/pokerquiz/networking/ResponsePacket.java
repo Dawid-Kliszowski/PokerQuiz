@@ -1,14 +1,13 @@
-package pl.pokerquiz.pokerquiz.gameLogic;
+package pl.pokerquiz.pokerquiz.networking;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Random;
 
-public class SocketPacket {
+public class ResponsePacket {
+    @SerializedName("request_checksum")
+    private String mRequestChecksum;
+
     @SerializedName("checksum")
     private String mChecksum;
 
@@ -21,11 +20,20 @@ public class SocketPacket {
     @SerializedName("message")
     private String mMessage;
 
-    public SocketPacket(String messageType, String message) throws JSONException {
+    @SerializedName("status")
+    private int mStatus;
+
+    public ResponsePacket(String messageType, String message, int status, String requestChecksum) {
         mMessageType = messageType;
         mMessage = message;
         mTimestamp = System.currentTimeMillis();
         mChecksum = "" + new Random().nextInt();
+        mStatus = status;
+        mRequestChecksum = requestChecksum;
+    }
+
+    public String getRequestChecksum() {
+        return mRequestChecksum;
     }
 
     public String getChecksum() {
@@ -38,5 +46,9 @@ public class SocketPacket {
 
     public String getMessageType() {
         return mMessageType;
+    }
+
+    public int getStatus() {
+        return mStatus;
     }
 }

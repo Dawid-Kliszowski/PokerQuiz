@@ -14,6 +14,8 @@ import android.widget.Button;
 
 import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.R;
+import pl.pokerquiz.pokerquiz.gui.activities.MainActivity;
+import pl.pokerquiz.pokerquiz.gui.activities.RoomActivity;
 import pl.pokerquiz.pokerquiz.gui.dialogs.CreateRoomDialogFragment;
 import pl.pokerquiz.pokerquiz.gui.dialogs.RoomsListDialogFragment;
 import pl.pokerquiz.pokerquiz.networking.ComunicationClientService;
@@ -44,28 +46,39 @@ public class HomeFragment extends Fragment {
         return mRootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setViews();
+    }
+
     private void findViews() {
         mBtnCreateRoom = (Button) mRootView.findViewById(R.id.btnCreateRoom);
         mBtnEnterRoom = (Button) mRootView.findViewById(R.id.btnEnterRoom);
     }
 
+    private void setViews() {
+        if (PokerQuizApplication.getInstance().getServerService() != null) {
+            mBtnCreateRoom.setText("Close your room");
+            mBtnEnterRoom.setText("Enter your room");
+        }
+    }
+
     private void setListeners() {
         mBtnCreateRoom.setOnClickListener(view -> {
-            //new CreateRoomDialogFragment().show(getFragmentManager(), "dialog_new_room");
-            getActivity().bindService(new Intent(getActivity(), ComunicationServerService.class), new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                    Log.d("doszlo", "connected");
-                    ((ComunicationServerService.ServerServiceBinder) iBinder).getService();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName componentName) {
-                    Log.d("doszlo", "disconected");
-                }
-            }, getActivity().BIND_AUTO_CREATE);
+            if (PokerQuizApplication.getInstance().getServerService() != null) {
+                //todo
+            } else {
+                new CreateRoomDialogFragment().show(getFragmentManager(), "dialog_new_room");
+            }
         });
 
-        mBtnEnterRoom.setOnClickListener(view -> new RoomsListDialogFragment().show(getFragmentManager(), "dialog_rooms"));
+        mBtnEnterRoom.setOnClickListener(view -> {
+            if (PokerQuizApplication.getInstance().getServerService() != null) {
+                startActivity(new Intent(getActivity(), RoomActivity.class));
+            } else {
+                new RoomsListDialogFragment().show(getFragmentManager(), "dialog_rooms");
+            }
+        });
     }
 }

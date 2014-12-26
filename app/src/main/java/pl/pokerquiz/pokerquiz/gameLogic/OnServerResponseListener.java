@@ -3,5 +3,5 @@ package pl.pokerquiz.pokerquiz.gameLogic;
 import org.json.JSONObject;
 
 public interface OnServerResponseListener {
-    public void onServerResponse(boolean success, int serverStatus);
+    public void onServerResponse(boolean success, int serverStatus, String messageType, String message);
 }

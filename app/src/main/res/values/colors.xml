@@ -7,4 +7,8 @@
     <color name="basic_brown">#ff480e09</color>
     <color name="dark_green">#ff143214</color>
     <color name="grey_transparent">#b0707070</color>
+    <color name="brown_transparent">#a0480e09</color>
+    <color name="grey">#808080</color>
+    <color name="pure_green">#00ff00</color>
+    <color name="pure_red">#ff0000</color>
 </resources>

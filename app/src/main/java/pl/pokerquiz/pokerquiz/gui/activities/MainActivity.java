@@ -12,11 +12,13 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import pl.pokerquiz.pokerquiz.R;
 import pl.pokerquiz.pokerquiz.gui.fragments.HomeFragment;
+import pl.pokerquiz.pokerquiz.gui.fragments.MainMenuFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class MainActivity extends Activity {
     private FrameLayout mFlFragmentContainer;
+    private FrameLayout mFlMenuContainer;
     private ImageView mImgvMenuButton;
     private SlidingMenu mSlidingMenu;
 
@@ -25,11 +27,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initSlidingMenu();
         findViews();
         setListeners();
-        initSlidingMenu();
-
-        setFragment(new HomeFragment());
+        initFragments();
     }
 
         @Override
@@ -39,6 +40,7 @@ public class MainActivity extends Activity {
 
     private void findViews() {
         mFlFragmentContainer = (FrameLayout) findViewById(R.id.flFragmentContainer);
+        mFlMenuContainer = (FrameLayout) findViewById(R.id.flMenuContainer);
         mImgvMenuButton = (ImageView) findViewById(R.id.imgvMenuButton);
     }
 
@@ -64,9 +66,20 @@ public class MainActivity extends Activity {
         mSlidingMenu.setMenu(R.layout.menu_main);
     }
 
-    private void setFragment(Fragment fragment) {
+    private void setMainFragment(Fragment fragment) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.add(R.id.flFragmentContainer, fragment, "fragment");
         transaction.commit();
+    }
+
+    private void setMenuFragment(Fragment fragment) {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.add(R.id.flMenuContainer, fragment, "fragment");
+        transaction.commit();
+    }
+
+    private void initFragments() {
+        setMainFragment(new HomeFragment());
+        setMenuFragment(new MainMenuFragment());
     }
 }

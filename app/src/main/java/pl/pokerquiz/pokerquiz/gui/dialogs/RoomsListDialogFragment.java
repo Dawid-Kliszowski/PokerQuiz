@@ -75,7 +75,7 @@ public class RoomsListDialogFragment extends DialogFragment {
                                     roomNames.add(room.getRoomName());
                                 }
 
-                                mLvRooms.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.lvitem_rooms, roomNames));
+                                mLvRooms.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.lvitem_dialog, roomNames));
                                 mLvRooms.setOnItemClickListener((adapterView, view, position, l) -> {
                                     setCancelable(false);
                                     mLvRooms.setVisibility(View.INVISIBLE);

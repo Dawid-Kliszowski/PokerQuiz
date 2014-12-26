@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
@@ -31,6 +32,7 @@ public class NetworkingManager extends BroadcastReceiver{
     private WifiManager mWifiManager;
     private OnRoomConnectedListener mConnectedListener;
     private OnRoomsScannedListener mScannedListener;
+    private OnApEnabledListener mApEnabledListener;
     private Runnable mWifiDisconnectedListener;
     private Runnable mWifiEnabledListener;
 
@@ -45,7 +47,7 @@ public class NetworkingManager extends BroadcastReceiver{
         mWifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
     }
 
-    public boolean configAccessPoint(String roomName) {
+    public boolean configAccessPoint(String roomName, OnApEnabledListener listener) {
         try {
             if (mWifiManager.isWifiEnabled()) {
                 mWifiManager.setWifiEnabled(false);
@@ -63,6 +65,7 @@ public class NetworkingManager extends BroadcastReceiver{
             config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
             config.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
 
+            mApEnabledListener = listener;
             Method setApEnabledMethod = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
             setApEnabledMethod.invoke(mWifiManager, config, true);
             return true;
@@ -178,66 +181,105 @@ public class NetworkingManager extends BroadcastReceiver{
     }
 
     private void resetWifiConnection(Runnable onWifiResetAction) {
-        if (mWifiManager.isWifiEnabled()) {
-            if (mWifiManager.getConnectionInfo().getSSID() != null && !mWifiManager.getConnectionInfo().getSSID().equals("<unknown ssid>")) {
-                mWifiManager.disconnect();
-                mWifiDisconnectedListener = onWifiResetAction;
-            } else {
-                onWifiResetAction.run();
-            }
-        } else {
-            mWifiManager.setWifiEnabled(true);
-            mWifiEnabledListener = onWifiResetAction;
-        }
+//        if (mWifiManager.isWifiEnabled()) {
+//            if (mWifiManager.getConnectionInfo().getSSID() != null && !(mWifiManager.getConnectionInfo().getSSID().equals("<unknown ssid>") || mWifiManager.getConnectionInfo().getSSID().equals("0x"))) {
+//                mWifiManager.disconnect();
+//                mWifiDisconnectedListener = onWifiResetAction;
+//            } else {
+//                onWifiResetAction.run();
+//            }
+//        } else {
+//            mWifiManager.setWifiEnabled(true);
+//            mWifiEnabledListener = onWifiResetAction;
+//        }
+        onWifiResetAction.run();
     }
 
     @Override
     public synchronized void onReceive( Context context, Intent intent )
     {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onReceive(): " + mWifiManager.getConnectionInfo().getSSID());
+            Log.d(TAG, "onReceive(): " + mWifiManager.getConnectionInfo().getSSID() + " " + mWifiManager.getConnectionInfo().getSupplicantState().toString());
         }
-        if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.STATE_CHANGE") && mWifiManager.isWifiEnabled() && mWifiEnabledListener != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onReceive(): option 1");
-            }
-            mWifiEnabledListener.run();
-            mWifiEnabledListener = null;
-        } else if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.STATE_CHANGE") && mWifiManager.isWifiEnabled() &&
-                mWifiManager.getConnectionInfo().getSSID() != null && mWifiManager.getConnectionInfo().getSSID().equals("<unknown ssid>") && mWifiDisconnectedListener != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onReceive(): option 2");
-            }
-            mWifiDisconnectedListener.run();
-            mWifiDisconnectedListener = null;
-        } else if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.STATE_CHANGE") && mConnectedListener != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onReceive(): option 3");
-            }
-            boolean success = mWifiManager.getConnectionInfo() != null &&
-                    mWifiManager.getConnectionInfo().getSSID() != null &&
-                    mWifiManager.getConnectionInfo().getSSID().equals("\"" + mConnectedListener.getRoom().getNetworkName() + "\"");
-            mConnectedListener.onRoomConnected(success, mConnectedListener.getRoom());
-            mConnectedListener = null;
-        } else if (intent.getAction() != null && intent.getAction().equals("android.net.wifi.SCAN_RESULTS") && mScannedListener != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "onReceive(): option 4");
-            }
-            List<PokerRoom> pokerRooms = new ArrayList<PokerRoom>();
-            for (ScanResult scanResult : mWifiManager.getScanResults()) {
-                String ssid = scanResult.SSID;
-                String postfix = Constans.WIFI_NETWORK_POSTFIX;
+        if (intent.getAction() != null) {
+            if (intent.getAction().equals("android.net.wifi.STATE_CHANGE") && mWifiManager.isWifiEnabled() && mWifiEnabledListener != null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "onReceive(): option 1");
+                }
+                mWifiEnabledListener.run();
+                mWifiEnabledListener = null;
+            } else if (intent.getAction().equals("android.net.wifi.STATE_CHANGE") && mWifiManager.isWifiEnabled() &&
+                    mWifiManager.getConnectionInfo().getSSID() != null && mWifiManager.getConnectionInfo().getSSID().equals("<unknown ssid>") && mWifiDisconnectedListener != null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "onReceive(): option 2");
+                }
+                mWifiDisconnectedListener.run();
+                mWifiDisconnectedListener = null;
+            } else if (intent.getAction().equals("android.net.wifi.STATE_CHANGE")
+                    && mWifiManager.getConnectionInfo() != null
+                    && mWifiManager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED)
+                    && mWifiManager.getConnectionInfo().getSSID() != null
+                    && mConnectedListener != null
+                    && mWifiManager.getConnectionInfo().getSSID().equals("\"" + mConnectedListener.getRoom().getNetworkName() + "\"")) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "onReceive(): option 3");
+                }
+                mConnectedListener.onRoomConnected(true, mConnectedListener.getRoom());
+                mConnectedListener = null;
 
-                if (ssid.length() > postfix.length() && ssid.substring(ssid.length() - postfix.length(), ssid.length()).equals(postfix)) {
-                    try {
-                        pokerRooms.add(new PokerRoom(ssid.substring(0, ssid.length() - postfix.length()), ssid,  getMd5(ssid).substring(0, 8)));
-                    } catch(NoSuchAlgorithmException nsae) {
-                        nsae.printStackTrace();
+            } else if (intent.getAction().equals("android.net.wifi.SCAN_RESULTS") && mScannedListener != null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "onReceive(): option 4");
+                }
+                List<PokerRoom> pokerRooms = new ArrayList<PokerRoom>();
+                for (ScanResult scanResult : mWifiManager.getScanResults()) {
+                    String ssid = scanResult.SSID;
+                    String postfix = Constans.WIFI_NETWORK_POSTFIX;
+
+                    if (ssid.length() > postfix.length() && ssid.substring(ssid.length() - postfix.length(), ssid.length()).equals(postfix)) {
+                        try {
+                            pokerRooms.add(new PokerRoom(ssid.substring(0, ssid.length() - postfix.length()), ssid,  getMd5(ssid).substring(0, 8)));
+                        } catch(NoSuchAlgorithmException nsae) {
+                            nsae.printStackTrace();
+                        }
                     }
                 }
+                mScannedListener.onRoomsScanned(pokerRooms);
+                mScannedListener = null;
+
+            } else if (intent.getAction().equals("android.net.wifi.WIFI_AP_STATE_CHANGED") && mApEnabledListener != null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "onReceive(): option 5");
+                }
+                mApEnabledListener.onApEnabled();
+                mApEnabledListener = null;
             }
-            mScannedListener.onRoomsScanned(pokerRooms);
-            mScannedListener = null;
         }
+    }
+
+    public WIFI_AP_STATE getWifiApState() {
+        try {
+            Method method = mWifiManager.getClass().getMethod("getWifiApState");
+
+            int tmp = ((Integer) method.invoke(mWifiManager));
+
+            // Fix for Android 4
+            if (tmp > 10) {
+                tmp = tmp - 10;
+            }
+
+            return WIFI_AP_STATE.class.getEnumConstants()[tmp];
+        } catch (Exception e) {
+            Log.e(this.getClass().toString(), "", e);
+            return WIFI_AP_STATE.WIFI_AP_STATE_FAILED;
+        }
+    }
+
+    public enum WIFI_AP_STATE {
+        WIFI_AP_STATE_DISABLING,
+        WIFI_AP_STATE_DISABLED,
+        WIFI_AP_STATE_ENABLING,
+        WIFI_AP_STATE_ENABLED,
+        WIFI_AP_STATE_FAILED
     }
 }

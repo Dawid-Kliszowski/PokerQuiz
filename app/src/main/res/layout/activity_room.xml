@@ -6,4 +6,109 @@
     android:layout_height="match_parent"
     android:background="@drawable/background_green">
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginRight="@dimen/margin_medium"
+        android:gravity="top">
+
+        <ImageView
+            android:id="@+id/imgvMenuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_menu_black"
+            android:layout_marginRight="@dimen/margin_medium"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/llplayerHolderFirst"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/llplayerHolderSecond"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/llplayerHolderThird"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imgvMenuButtonRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:src="@drawable/ic_menu_black"
+            android:visibility="gone"/>
+        </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_medium">
+
+            <pl.pokerquiz.pokerquiz.utils.ArcLayout
+                android:id="@+id/arcLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            </RelativeLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/llplayerHolderFourth"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:layout_marginRight="@dimen/margin_medium"/>
+
+            <LinearLayout
+                android:id="@+id/llplayerHolderFifth"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:layout_marginRight="@dimen/margin_medium"/>
+            </LinearLayout>
+        </LinearLayout>
+
 </LinearLayout>
