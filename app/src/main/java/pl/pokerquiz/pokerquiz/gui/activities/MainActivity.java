@@ -2,6 +2,7 @@ package pl.pokerquiz.pokerquiz.gui.activities;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
@@ -17,8 +18,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class MainActivity extends Activity {
-    private FrameLayout mFlFragmentContainer;
-    private FrameLayout mFlMenuContainer;
     private ImageView mImgvMenuButton;
     private SlidingMenu mSlidingMenu;
 
@@ -30,7 +29,8 @@ public class MainActivity extends Activity {
         initSlidingMenu();
         findViews();
         setListeners();
-        initFragments();
+
+        setFragment(new HomeFragment(), true);
     }
 
         @Override
@@ -39,8 +39,6 @@ public class MainActivity extends Activity {
     }
 
     private void findViews() {
-        mFlFragmentContainer = (FrameLayout) findViewById(R.id.flFragmentContainer);
-        mFlMenuContainer = (FrameLayout) findViewById(R.id.flMenuContainer);
         mImgvMenuButton = (ImageView) findViewById(R.id.imgvMenuButton);
     }
 
@@ -64,11 +62,16 @@ public class MainActivity extends Activity {
         mSlidingMenu.setFadeDegree(0.6f);
         mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
         mSlidingMenu.setMenu(R.layout.menu_main);
+        setMenuFragment(new MainMenuFragment());
     }
 
-    private void setMainFragment(Fragment fragment) {
+    public void setFragment(Fragment fragment, boolean clearBackStack) {
+        if (clearBackStack) {
+            getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.add(R.id.flFragmentContainer, fragment, "fragment");
+        transaction.replace(R.id.flFragmentContainer, fragment, fragment.getClass().getSimpleName());
+        transaction.addToBackStack(fragment.getClass().getSimpleName());
         transaction.commit();
     }
 
@@ -78,8 +81,12 @@ public class MainActivity extends Activity {
         transaction.commit();
     }
 
-    private void initFragments() {
-        setMainFragment(new HomeFragment());
-        setMenuFragment(new MainMenuFragment());
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() <= 1) {
+            finish();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

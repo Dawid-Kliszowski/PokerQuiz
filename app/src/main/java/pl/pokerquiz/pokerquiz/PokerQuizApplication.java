@@ -41,7 +41,7 @@ public class PokerQuizApplication extends Application {
         registerReceiver(mNetworkingManager, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         registerReceiver(mNetworkingManager, new IntentFilter("android.net.wifi.WIFI_AP_STATE_CHANGED"));
 
-        CalligraphyConfig.initDefault("fonts/berkshire-swash.regular.ttf", R.attr.fontPath);
+        //CalligraphyConfig.initDefault("fonts/berkshire-swash.regular.ttf", R.attr.fontPath);
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration
                 .Builder(getApplicationContext())
@@ -65,8 +65,8 @@ public class PokerQuizApplication extends Application {
         return EVENT_BUS;
     }
 
-    public AppPrefs getAppPrefs() {
-        return mAppPrefs;
+    public static AppPrefs getAppPrefs() {
+        return sApplication.mAppPrefs;
     }
 
     public NetworkingManager getNetworkingManager() {

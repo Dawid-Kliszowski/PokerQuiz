@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin_medium"
-        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_small"
         android:layout_marginRight="@dimen/margin_medium"
         android:gravity="top">
 
@@ -20,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_menu_black"
+            android:layout_marginTop="@dimen/margin_small"
             android:layout_marginRight="@dimen/margin_medium"/>
 
         <LinearLayout
@@ -74,14 +75,27 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin_medium">
+            android:layout_marginTop="@dimen/margin_small">
 
-            <pl.pokerquiz.pokerquiz.utils.ArcLayout
-                android:id="@+id/arcLayout"
+            <pl.pokerquiz.pokerquiz.gui.views.SelfCardsView
+                android:id="@+id/selfCardsView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
+            <pl.pokerquiz.pokerquiz.gui.views.CardsView
+                android:id="@+id/cardsView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="50dp"/>
+
+            <ImageView
+                android:id="@+id/imgvBottomArrow"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:src="@drawable/arrow_up"
+                android:adjustViewBounds="true"
+                android:layout_alignParentBottom="true"
+                android:padding="@dimen/margin_small"/>
             </RelativeLayout>
 
         <LinearLayout
@@ -97,7 +111,7 @@
                 android:gravity="center_vertical"
                 android:layout_weight="1"
                 android:visibility="gone"
-                android:layout_marginRight="@dimen/margin_medium"/>
+                android:layout_marginRight="@dimen/margin_small"/>
 
             <LinearLayout
                 android:id="@+id/llplayerHolderFifth"
@@ -107,7 +121,7 @@
                 android:gravity="center_vertical"
                 android:layout_weight="1"
                 android:visibility="gone"
-                android:layout_marginRight="@dimen/margin_medium"/>
+                android:layout_marginRight="@dimen/margin_small"/>
             </LinearLayout>
         </LinearLayout>
 

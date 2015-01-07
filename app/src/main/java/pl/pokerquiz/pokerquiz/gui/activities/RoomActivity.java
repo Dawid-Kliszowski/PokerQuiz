@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -28,22 +27,27 @@ import java.util.List;
 
 import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.R;
-import pl.pokerquiz.pokerquiz.gameLogic.Gamer;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Gamer;
 import pl.pokerquiz.pokerquiz.gameLogic.OnServerResponseListener;
 import pl.pokerquiz.pokerquiz.gui.fragments.CroupierMenuFragment;
 import pl.pokerquiz.pokerquiz.gui.fragments.MainMenuFragment;
+import pl.pokerquiz.pokerquiz.gui.views.CardsView;
 import pl.pokerquiz.pokerquiz.networking.ComunicationClientService;
 import pl.pokerquiz.pokerquiz.networking.GamerInteractingInterface;
-import pl.pokerquiz.pokerquiz.utils.ArcLayout;
+import pl.pokerquiz.pokerquiz.gui.views.SelfCardsView;
 
 public class RoomActivity extends Activity implements GamerInteractingInterface {
     private ComunicationClientService mClientService;
 
     private ImageView mImgvMenuButton;
     private ImageView mImgvMenuButtonRight;
+    private ImageView mImgvBottomArrow;
 
     private SlidingMenu mSlidingMenu;
     private List<LinearLayout> mPlayerHolders;
+    private CardsView mCardsView;
+    private SelfCardsView mSelfCardsView;
 
     private DisplayImageOptions mAvatarOptions;
     private boolean mIsCroupier;
@@ -54,8 +58,6 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
         setContentView(R.layout.activity_room);
 
         mIsCroupier = PokerQuizApplication.getInstance().getServerService() != null;
-
-        initClientService();
 
         findViews();
         setListeners();
@@ -69,11 +71,23 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
                 .cacheOnDisk(false)
                 .bitmapConfig(Bitmap.Config.RGB_565).build();
 
+        if (mClientService == null) {
+            initClientService();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mClientService != null) {
+            mClientService.refreshGameState();
+        }
     }
 
     private void findViews() {
         mImgvMenuButton = (ImageView) findViewById(R.id.imgvMenuButton);
         mImgvMenuButtonRight = (ImageView) findViewById(R.id.imgvMenuButtonRight);
+        mImgvBottomArrow = (ImageView) findViewById(R.id.imgvBottomArrow);
 
         mPlayerHolders = new ArrayList<>();
         mPlayerHolders.add((LinearLayout) findViewById(R.id.llplayerHolderFirst));
@@ -103,9 +117,10 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
                 microCardView.addView(inflater.inflate(R.layout.micro_game_card, microCardView, false));
 
                 MicroGameCardViewHolder microCardHolder = new MicroGameCardViewHolder();
-                microCardHolder.mImgvCardColor = (ImageView) microCardView.findViewById(R.id.imgvPoint);
+                microCardHolder.mLlContentHolder = (LinearLayout) microCardView.findViewById(R.id.llContentHolder);
+                microCardHolder.mImgvPoint = (ImageView) microCardView.findViewById(R.id.imgvPoint);
                 microCardHolder.mImgvCardColor = (ImageView) microCardView.findViewById(R.id.imgvCardColor);
-                microCardHolder.mTxtvFigure = (TextView) findViewById(R.id.txtvFigure);
+                microCardHolder.mTxtvFigure = (TextView) microCardView.findViewById(R.id.txtvFigure);
 
                 viewHolder.mMicroCardHolders.add(microCardHolder);
             }
@@ -113,15 +128,9 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
             playerCardHolder.setTag(viewHolder);
         }
 
-        ArcLayout arcLayout = (ArcLayout) findViewById(R.id.arcLayout);
+        mSelfCardsView = (SelfCardsView) findViewById(R.id.selfCardsView);
 
-        arcLayout.setOnClickListener(view -> {
-            arcLayout.switchState(true);
-        });
-
-        for (int i = 0; i < 5; i++) {
-            arcLayout.addView(inflater.inflate(R.layout.big_card, arcLayout, false));
-        }
+        mCardsView = (CardsView) findViewById(R.id.cardsView);
     }
 
     private void setListeners() {
@@ -142,6 +151,19 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
                 }
             });
         }
+
+        mImgvBottomArrow.setOnClickListener(view -> {
+            if (mCardsView.isExpanded()) {
+                mCardsView.switchState(true);
+            }
+
+            if (mSelfCardsView.isExpanded()) {
+                mImgvBottomArrow.setImageResource(R.drawable.arrow_up);
+            } else {
+                mImgvBottomArrow.setImageResource(R.drawable.arrow_down);
+            }
+            mSelfCardsView.switchState(true);
+        });
     }
 
     private void initClientService() {
@@ -181,7 +203,7 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
             mSlidingMenu.setSecondaryMenu(R.layout.menu_room_croupier);
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.add(R.id.flCroupierMenuContainer, new CroupierMenuFragment(), "croupier_tfragment");
+            transaction.add(R.id.flCroupierMenuContainer, new CroupierMenuFragment(), "croupier_fragment");
             transaction.commit();
         } else {
             mSlidingMenu = new SlidingMenu(this);
@@ -199,21 +221,53 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
     }
 
     @Override
-    public void onGamersStateChanged(List<Gamer> gamers) {
-        for (int i = 0; i < gamers.size(); i++) {
-            fillGamerCard(mPlayerHolders.get(i), gamers.get(i));
-        }
+    public void onGamersStateChanged(Gamer gamerMe, List<Gamer> gamers) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            mSelfCardsView.setCards(gamerMe.getCards());
+            for (int i = 0; i < gamers.size(); i++) {
+                fillGamerCard(mPlayerHolders.get(i), gamers.get(i));
+            }
+        });
     }
 
     private void fillGamerCard(LinearLayout gamerCardHolder, Gamer gamer) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                gamerCardHolder.setVisibility(View.VISIBLE);
+        gamerCardHolder.setVisibility(View.VISIBLE);
 
-                GamerCardViewHolder viewHolder = (GamerCardViewHolder) gamerCardHolder.getTag();
-                viewHolder.mTxtvNickname.setText(gamer.getNickname());
-                ImageLoader.getInstance().displayImage(gamer.getAvatarBase64(), viewHolder.mImgvAvatar, mAvatarOptions);
+        GamerCardViewHolder viewHolder = (GamerCardViewHolder) gamerCardHolder.getTag();
+        viewHolder.mTxtvNickname.setText(gamer.getNickname());
+        ImageLoader.getInstance().displayImage(gamer.getAvatarBase64(), viewHolder.mImgvAvatar, mAvatarOptions);
+
+        for (int i = 0; i < 5; i++) {
+            MicroGameCardViewHolder cardHolder = viewHolder.mMicroCardHolders.get(i);
+
+            if (gamer.getCards() != null && gamer.getCards().size() > i) {
+                FullGameCard card = gamer.getCards().get(i);
+                cardHolder.mLlContentHolder.setVisibility(View.VISIBLE);
+                cardHolder.mTxtvFigure.setText(card.getPokerCard().getSign());
+                cardHolder.mImgvCardColor.setImageResource(card.getPokerCard().getColorResId());
+            } else {
+                cardHolder.mLlContentHolder.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        gamerCardHolder.setOnClickListener(view -> {
+            if (mCardsView.isExpanded()) {
+                mCardsView.setOnAnimationsEndListener(() -> {
+                    mCardsView.setCards(gamer.getCards());
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        mCardsView.switchState(true);
+                    }, 250l);
+                });
+                mCardsView.switchState(true);
+            } else {
+                mCardsView.setCards(gamer.getCards());
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    mCardsView.switchState(true);
+                    if (mSelfCardsView.isExpanded()) {
+                        mSelfCardsView.switchState(true);
+                        mImgvBottomArrow.setImageResource(R.drawable.arrow_up);
+                    }
+                }, 250l);
             }
         });
     }

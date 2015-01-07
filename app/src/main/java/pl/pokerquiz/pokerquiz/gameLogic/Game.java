@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Gamer;
+import pl.pokerquiz.pokerquiz.datamodel.rest.QuizQuestion;
+
 public class Game {
     private static final int MAX_GAMERS = 5;
     private boolean mReturnCardsToDeck;

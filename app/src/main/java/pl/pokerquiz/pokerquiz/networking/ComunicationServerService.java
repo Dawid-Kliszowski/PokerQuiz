@@ -4,21 +4,26 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Random;
+import java.util.List;
 
 import pl.pokerquiz.pokerquiz.BuildConfig;
-import pl.pokerquiz.pokerquiz.Constans;
-import pl.pokerquiz.pokerquiz.datamodel.GamerInfo;
-import pl.pokerquiz.pokerquiz.datamodel.GamerInfoResponse;
-import pl.pokerquiz.pokerquiz.gameLogic.Gamer;
+import pl.pokerquiz.pokerquiz.Constants;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfo;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfoResponse;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Gamer;
+import pl.pokerquiz.pokerquiz.gameLogic.PokerCard;
 
 public class ComunicationServerService extends CommunicationBasicService {
     private ServerServiceBinder mBinder;
 
-    private HashMap<Long, Gamer> mGamerIdGamerMap = new HashMap<>();
-    private HashMap<Long, String> mGamerIdIpAddressMap = new HashMap<>();
-    private HashMap<String, Long> mIpAddressGamerIdMap = new HashMap<>();
+    private HashMap<String, Gamer> mGamerIdGamerMap = new HashMap<>();
+    private HashMap<String, String> mGamerIdIpAddressMap = new HashMap<>();
+    private HashMap<String, String> mIpAddressGamerIdMap = new HashMap<>();
 
     private CroupierInteractingInterface mCroupierInterface;
 
@@ -55,7 +60,7 @@ public class ComunicationServerService extends CommunicationBasicService {
         for (Gamer gamer : mGamerIdGamerMap.values()) {
             String ipAddress = mGamerIdIpAddressMap.get(gamer.getGamerId());
             if (ipAddress != null) {
-                sendMessage(ipAddress, Constans.CLIENT_MESSAGE_PORT_NUMBER, messageType, message, null, false, 0l, null);
+                sendMessage(ipAddress, Constants.CLIENT_MESSAGE_PORT_NUMBER, messageType, message, null, false, 0l, null);
             } else {
                 //todo
             }
@@ -68,14 +73,14 @@ public class ComunicationServerService extends CommunicationBasicService {
             if (messageType.equals(MessageType.GAMER_INFO)) {
                 GamerInfo gamerInfo = GSON.fromJson(message, GamerInfo.class);
 
-                long gamerId;
-                do {
-                    gamerId = new Random().nextLong();
-                } while (mGamerIdIpAddressMap.containsKey(gamerId));
+                if (mGamerIdIpAddressMap.containsKey(gamerInfo.getDeviceId())) {
+                    mGamerIdIpAddressMap.put(gamerInfo.getDeviceId(), ipAddres);
+                    return;
+                }
 
-                Gamer gamer = new Gamer(gamerId, gamerInfo);
+                Gamer gamer = new Gamer(gamerInfo);
 
-                if (ipAddres.equals(Constans.SERVER_IP_ADDRESS)) {
+                if (ipAddres.equals(Constants.SERVER_IP_ADDRESS)) {
                     String response = GSON.toJson(new GamerInfoResponse(true, gamer));
                     responseManager.sendResponse(MessageType.GAMER_INFO_RESPONSE, response, null);
 
@@ -123,6 +128,21 @@ public class ComunicationServerService extends CommunicationBasicService {
 
     private void broadcastActualGamersState() {
         sendBroadcastMessage(MessageType.ACTUAL_GAMERS_STATE, GSON.toJson(mGamerIdGamerMap.values()));
+    }
+
+    public void dealCards() {
+        List<PokerCard> allCards = new ArrayList<>(Arrays.asList(PokerCard.values()));
+        Collections.shuffle(allCards);
+        for (Gamer gamer : mGamerIdGamerMap.values()) {
+            List<FullGameCard> gamerCards = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                gamerCards.add(new FullGameCard(allCards.get(allCards.size() - 1), null));
+                allCards.remove(allCards.size() - 1);
+            }
+
+            gamer.setCards(gamerCards);
+            broadcastActualGamersState();
+        }
     }
 
     @Override

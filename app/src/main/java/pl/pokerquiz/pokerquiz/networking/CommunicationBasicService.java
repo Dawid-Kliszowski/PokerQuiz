@@ -16,8 +16,10 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import pl.pokerquiz.pokerquiz.BuildConfig;
-import pl.pokerquiz.pokerquiz.Constans;
-import pl.pokerquiz.pokerquiz.gameLogic.ConfirmationPacket;
+import pl.pokerquiz.pokerquiz.Constants;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.ConfirmationPacket;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.ResponsePacket;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.SocketPacket;
 import pl.pokerquiz.pokerquiz.gameLogic.OnServerResponseListener;
 
 public abstract class CommunicationBasicService extends Service {
@@ -112,17 +114,17 @@ public abstract class CommunicationBasicService extends Service {
     }
 
     protected void setServerSockets() {
-        setMessageSocket(Constans.SERVER_MESSAGE_PORT_NUMBER,
-                Constans.CLIENT_RESPONSE_PORT_NUMBER, Constans.CLIENT_CONFIRMATION_PORT_NUMBER);
-        setConfirmationSocket(Constans.SERVER_CONFIRMATION_PORT_NUMBER);
-        setResponseSocket(Constans.SERVER_RESPONSE_PORT_NUMBER, Constans.CLIENT_CONFIRMATION_PORT_NUMBER);
+        setMessageSocket(Constants.SERVER_MESSAGE_PORT_NUMBER,
+                Constants.CLIENT_RESPONSE_PORT_NUMBER, Constants.CLIENT_CONFIRMATION_PORT_NUMBER);
+        setConfirmationSocket(Constants.SERVER_CONFIRMATION_PORT_NUMBER);
+        setResponseSocket(Constants.SERVER_RESPONSE_PORT_NUMBER, Constants.CLIENT_CONFIRMATION_PORT_NUMBER);
     }
 
     protected void setClientSockets() {
-        setMessageSocket(Constans.CLIENT_MESSAGE_PORT_NUMBER,
-                Constans.SERVER_RESPONSE_PORT_NUMBER, Constans.SERVER_CONFIRMATION_PORT_NUMBER);
-        setConfirmationSocket(Constans.CLIENT_CONFIRMATION_PORT_NUMBER);
-        setResponseSocket(Constans.CLIENT_RESPONSE_PORT_NUMBER, Constans.SERVER_CONFIRMATION_PORT_NUMBER);
+        setMessageSocket(Constants.CLIENT_MESSAGE_PORT_NUMBER,
+                Constants.SERVER_RESPONSE_PORT_NUMBER, Constants.SERVER_CONFIRMATION_PORT_NUMBER);
+        setConfirmationSocket(Constants.CLIENT_CONFIRMATION_PORT_NUMBER);
+        setResponseSocket(Constants.CLIENT_RESPONSE_PORT_NUMBER, Constants.SERVER_CONFIRMATION_PORT_NUMBER);
     }
 
     private void setMessageSocket(int port, int responsePort, int confirmationPort) {
@@ -407,7 +409,7 @@ public abstract class CommunicationBasicService extends Service {
     private void setConfirmationTimeoutThread(String ipAddress, String checksum) {
         TimeoutThread timeoutThread = new TimeoutThread(ipAddress, checksum, () -> {
             try {
-                Thread.sleep(Constans.DELIVERY_CONFIRMATION_TIMEOUT);
+                Thread.sleep(Constants.DELIVERY_CONFIRMATION_TIMEOUT);
                 mChecksumTimeoutThreadsMap.remove(checksum);
 
                 OnDeliveredListener deliveredListener = mChecksumDeliveredListenersMap.get(checksum);

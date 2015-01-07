@@ -3,7 +3,7 @@
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="black_transparent_overlay">#c0000000</color>
-    <color name="menu_black_transparent_overlay">#e0000000</color>
+    <color name="menu_black_transparent_overlay">#d0000000</color>
     <color name="basic_brown">#ff480e09</color>
     <color name="dark_green">#ff143214</color>
     <color name="grey_transparent">#b0707070</color>
@@ -11,4 +11,5 @@
     <color name="grey">#808080</color>
     <color name="pure_green">#00ff00</color>
     <color name="pure_red">#ff0000</color>
+    <color name="white_transparent">#e0ffffff</color>
 </resources>

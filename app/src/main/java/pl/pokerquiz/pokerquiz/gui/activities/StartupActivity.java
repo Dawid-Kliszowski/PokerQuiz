@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 
-import pl.pokerquiz.pokerquiz.Constans;
+import pl.pokerquiz.pokerquiz.Constants;
 import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.R;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -49,6 +49,6 @@ public class StartupActivity extends Activity {
     }
 
     private boolean isNicknameValid(String nickname) {
-        return nickname.length() > Constans.MINIMUM_NICKNAME_LENGTH && nickname.length() < Constans.MAXIMUM_NICKNAME_LENGTH;
+        return nickname.length() > Constants.MINIMUM_NICKNAME_LENGTH && nickname.length() < Constants.MAXIMUM_NICKNAME_LENGTH;
     }
 }

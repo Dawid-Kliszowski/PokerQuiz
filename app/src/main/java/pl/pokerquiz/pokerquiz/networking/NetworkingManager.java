@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import pl.pokerquiz.pokerquiz.BuildConfig;
-import pl.pokerquiz.pokerquiz.Constans;
+import pl.pokerquiz.pokerquiz.Constants;
 
 public class NetworkingManager extends BroadcastReceiver{
     private static final String TAG = "NetworkingManager";
@@ -47,12 +47,12 @@ public class NetworkingManager extends BroadcastReceiver{
         mWifiManager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
     }
 
-    public boolean configAccessPoint(String roomName, OnApEnabledListener listener) {
+    public boolean enableAccessPoint(String roomName, OnApEnabledListener listener) {
         try {
             if (mWifiManager.isWifiEnabled()) {
                 mWifiManager.setWifiEnabled(false);
             }
-            String apName = roomName + Constans.WIFI_NETWORK_POSTFIX;
+            String apName = roomName + Constants.WIFI_NETWORK_POSTFIX;
 
             WifiConfiguration config = new WifiConfiguration();
             config.SSID = apName;
@@ -234,7 +234,7 @@ public class NetworkingManager extends BroadcastReceiver{
                 List<PokerRoom> pokerRooms = new ArrayList<PokerRoom>();
                 for (ScanResult scanResult : mWifiManager.getScanResults()) {
                     String ssid = scanResult.SSID;
-                    String postfix = Constans.WIFI_NETWORK_POSTFIX;
+                    String postfix = Constants.WIFI_NETWORK_POSTFIX;
 
                     if (ssid.length() > postfix.length() && ssid.substring(ssid.length() - postfix.length(), ssid.length()).equals(postfix)) {
                         try {
@@ -281,5 +281,9 @@ public class NetworkingManager extends BroadcastReceiver{
         WIFI_AP_STATE_ENABLING,
         WIFI_AP_STATE_ENABLED,
         WIFI_AP_STATE_FAILED
+    }
+
+    public interface OnApEnabledListener {
+        public void onApEnabled();
     }
 }

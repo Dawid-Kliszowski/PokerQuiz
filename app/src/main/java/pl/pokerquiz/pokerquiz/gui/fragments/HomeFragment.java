@@ -26,6 +26,8 @@ public class HomeFragment extends Fragment {
     private View mRootView;
     private Button mBtnCreateRoom;
     private Button mBtnEnterRoom;
+    private Button mBtnQuizQuestions;
+    private Button mBtnSettings;
 
     private NetworkingManager mNetworkingManager;
 
@@ -55,12 +57,14 @@ public class HomeFragment extends Fragment {
     private void findViews() {
         mBtnCreateRoom = (Button) mRootView.findViewById(R.id.btnCreateRoom);
         mBtnEnterRoom = (Button) mRootView.findViewById(R.id.btnEnterRoom);
+        mBtnQuizQuestions = (Button) mRootView.findViewById(R.id.btnQuizQuestions);
+        mBtnSettings = (Button) mRootView.findViewById(R.id.btnSettings);
     }
 
     private void setViews() {
         if (PokerQuizApplication.getInstance().getServerService() != null) {
-            mBtnCreateRoom.setText("Close your room");
-            mBtnEnterRoom.setText("Enter your room");
+            mBtnCreateRoom.setText(R.string.close_your_room);
+            mBtnEnterRoom.setText(R.string.enter_your_room);
         }
     }
 
@@ -79,6 +83,14 @@ public class HomeFragment extends Fragment {
             } else {
                 new RoomsListDialogFragment().show(getFragmentManager(), "dialog_rooms");
             }
+        });
+
+        mBtnQuizQuestions.setOnClickListener(view -> {
+            ((MainActivity) getActivity()).setFragment(new CategoriesListFragment(), false);
+        });
+
+        mBtnSettings.setOnClickListener(view -> {
+            ((MainActivity) getActivity()).setFragment(new SettingsFragment(), false);
         });
     }
 }

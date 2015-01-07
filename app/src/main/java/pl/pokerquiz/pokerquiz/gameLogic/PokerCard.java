@@ -1,5 +1,9 @@
 package pl.pokerquiz.pokerquiz.gameLogic;
 
+import java.util.List;
+
+import pl.pokerquiz.pokerquiz.R;
+
 public enum PokerCard {
     hearts_two,
     hearts_three,
@@ -59,6 +63,7 @@ public enum PokerCard {
 
     private CardColor mColor;
     private CardFigure mFigure;
+    private int mFigureResId = -1;
 
 
     static {
@@ -91,12 +96,15 @@ public enum PokerCard {
 
         hearts_jack.mColor = CardColor.hearts;
         hearts_jack.mFigure = CardFigure.jack;
+        hearts_jack.mFigureResId = R.drawable.figure_heart_jack;
 
         hearts_queen.mColor = CardColor.hearts;
         hearts_queen.mFigure = CardFigure.queen;
+        hearts_queen.mFigureResId = R.drawable.figure_heart_queen;
 
         hearts_king.mColor = CardColor.hearts;
         hearts_king.mFigure = CardFigure.king;
+        hearts_king.mFigureResId = R.drawable.figure_heart_king;
 
         hearts_ace.mColor = CardColor.hearts;
         hearts_ace.mFigure = CardFigure.ace;
@@ -132,12 +140,15 @@ public enum PokerCard {
 
         diamonds_jack.mColor = CardColor.diamonds;
         diamonds_jack.mFigure = CardFigure.jack;
+        diamonds_jack.mFigureResId = R.drawable.figure_diamonds_jack;
 
         diamonds_queen.mColor = CardColor.diamonds;
         diamonds_queen.mFigure = CardFigure.queen;
+        diamonds_queen.mFigureResId = R.drawable.figure_diamods_queen;
 
         diamonds_king.mColor = CardColor.diamonds;
         diamonds_king.mFigure = CardFigure.king;
+        diamonds_king.mFigureResId = R.drawable.figure_diamonds_king;
 
         diamonds_ace.mColor = CardColor.diamonds;
         diamonds_ace.mFigure = CardFigure.ace;
@@ -173,12 +184,15 @@ public enum PokerCard {
 
         clubs_jack.mColor = CardColor.clubs;
         clubs_jack.mFigure = CardFigure.jack;
+        clubs_jack.mFigureResId = R.drawable.figure_clubs_jack;
 
         clubs_queen.mColor = CardColor.clubs;
         clubs_queen.mFigure = CardFigure.queen;
+        clubs_queen.mFigureResId = R.drawable.figure_clubs_queen;
 
         clubs_king.mColor = CardColor.clubs;
         clubs_king.mFigure = CardFigure.king;
+        clubs_king.mFigureResId = R.drawable.figure_clubs_king;
 
         clubs_ace.mColor = CardColor.clubs;
         clubs_ace.mFigure = CardFigure.ace;
@@ -214,14 +228,41 @@ public enum PokerCard {
 
         spades_jack.mColor = CardColor.spades;
         spades_jack.mFigure = CardFigure.jack;
+        spades_jack.mFigureResId = R.drawable.figure_spades_jack;
 
         spades_queen.mColor = CardColor.spades;
         spades_queen.mFigure = CardFigure.queen;
+        spades_queen.mFigureResId = R.drawable.figure_spades_queen;
 
         spades_king.mColor = CardColor.spades;
         spades_king.mFigure = CardFigure.king;
+        spades_king.mFigureResId = R.drawable.figure_spades_king;
 
         spades_ace.mColor = CardColor.spades;
         spades_ace.mFigure = CardFigure.ace;
+    }
+
+    public int getColorResId() {
+        return mColor.mImageResId;
+    }
+
+    public String getSign() {
+        return mFigure.getSign();
+    }
+
+    public int getFontColor() {
+        return mColor.mFontColor;
+    }
+
+    public List<CardFigure.IconPlaceParam> getFigureIconParams() {
+        return mFigure.getIconPlaces();
+    }
+
+    public int getFigureResId() {
+        if (mFigure == CardFigure.jack || mFigure == CardFigure.queen || mFigure == CardFigure.king) {
+            return mFigureResId;
+        } else {
+            return mColor.mImageResId;
+        }
     }
 }

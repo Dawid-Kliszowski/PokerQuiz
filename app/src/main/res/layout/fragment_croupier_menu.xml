@@ -26,5 +26,11 @@
             android:text="auto"/>
         </LinearLayout>
 
+    <Button
+        android:id="@+id/btnDealCards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:text="Deal the cards"/>
 
 </LinearLayout>
