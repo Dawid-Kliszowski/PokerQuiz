@@ -2,13 +2,14 @@ package pl.pokerquiz.pokerquiz.datamodel.gameCommunication;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfo;
 
-public class Gamer {
+public class Gamer implements Serializable {
     @SerializedName("device_id")
     private String mDeviceId;
 

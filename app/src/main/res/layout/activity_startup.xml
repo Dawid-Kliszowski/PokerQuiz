@@ -9,7 +9,12 @@
     android:paddingBottom="@dimen/margin_medium"
     android:background="@drawable/background_overlayed">
 
-    <include layout="@layout/top_logo"/>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo_big"
+        android:layout_margin="@dimen/margin_small"
+        android:layout_gravity="center_horizontal"/>
 
     <LinearLayout
         android:orientation="vertical"

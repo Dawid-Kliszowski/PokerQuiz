@@ -11,5 +11,6 @@
     <color name="grey">#808080</color>
     <color name="pure_green">#00ff00</color>
     <color name="pure_red">#ff0000</color>
-    <color name="white_transparent">#e0ffffff</color>
+    <color name="white_transparent">#d0ffffff</color>
+    <color name="white_transparent_light">#40ffffff</color>
 </resources>

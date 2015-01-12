@@ -1,9 +1,10 @@
 package pl.pokerquiz.pokerquiz.gameLogic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum CardFigure {
+public enum CardFigure implements Serializable {
     two,
     three,
     four,

@@ -1,6 +1,8 @@
 package pl.pokerquiz.pokerquiz.gui.activities;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -13,6 +15,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,6 +33,7 @@ import pl.pokerquiz.pokerquiz.R;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Gamer;
 import pl.pokerquiz.pokerquiz.gameLogic.OnServerResponseListener;
+import pl.pokerquiz.pokerquiz.gui.dialogs.BigCardDialogFragment;
 import pl.pokerquiz.pokerquiz.gui.fragments.CroupierMenuFragment;
 import pl.pokerquiz.pokerquiz.gui.fragments.MainMenuFragment;
 import pl.pokerquiz.pokerquiz.gui.views.CardsView;
@@ -40,6 +44,7 @@ import pl.pokerquiz.pokerquiz.gui.views.SelfCardsView;
 public class RoomActivity extends Activity implements GamerInteractingInterface {
     private ComunicationClientService mClientService;
 
+    private FrameLayout mFlFragmentContainer;
     private ImageView mImgvMenuButton;
     private ImageView mImgvMenuButtonRight;
     private ImageView mImgvBottomArrow;
@@ -84,7 +89,28 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (getFragmentManager().getBackStackEntryCount() <= 1) {
+            mFlFragmentContainer.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void setFragment(Fragment fragment, boolean clearBackStack) {
+        mFlFragmentContainer.setVisibility(View.VISIBLE);
+        if (clearBackStack) {
+            getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.flFragmentContainer, fragment, fragment.getClass().getSimpleName());
+        transaction.addToBackStack(fragment.getClass().getSimpleName());
+        transaction.commit();
+        mSlidingMenu.showContent();
+    }
+
     private void findViews() {
+        mFlFragmentContainer = (FrameLayout) findViewById(R.id.flFragmentContainer);
         mImgvMenuButton = (ImageView) findViewById(R.id.imgvMenuButton);
         mImgvMenuButtonRight = (ImageView) findViewById(R.id.imgvMenuButtonRight);
         mImgvBottomArrow = (ImageView) findViewById(R.id.imgvBottomArrow);
@@ -164,6 +190,10 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
             }
             mSelfCardsView.switchState(true);
         });
+
+        mSelfCardsView.setOnQuestionClickListener(view -> {
+            new BigCardDialogFragment().show(getFragmentManager(), "big_card_dialog");
+        });
     }
 
     private void initClientService() {
@@ -223,7 +253,11 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
     @Override
     public void onGamersStateChanged(Gamer gamerMe, List<Gamer> gamers) {
         new Handler(Looper.getMainLooper()).post(() -> {
-            mSelfCardsView.setCards(gamerMe.getCards());
+            if (gamerMe != null && gamerMe.getCards() != null) {
+                mSelfCardsView.setCards(gamerMe.getCards());
+            } else {
+                mSelfCardsView.setCards(null);
+            }
             for (int i = 0; i < gamers.size(); i++) {
                 fillGamerCard(mPlayerHolders.get(i), gamers.get(i));
             }

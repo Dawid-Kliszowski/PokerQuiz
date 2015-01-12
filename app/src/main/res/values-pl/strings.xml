@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PokerQuiz</string>
-
+    <string name="nickname">pseudonim</string>
+    <string name="enter_your_nickname">Wpisz swój pseudonim</string>
+    <string name="no_rooms_found">Nie odnaleziono pokoi</string>
+    <string name="connected_to">"Dołączony do "</string>
+    <string name="error_connecting_to">"Błąd podczas dołączania do "</string>
+    <string name="create_room">Stwórz pokój</string>
+    <string name="enter_room">Dołącz do istniejącego pokoju</string>
+    <string name="lets_play_the_game">Zagraj, jeśli się ośmielisz…</string>
+    <string name="room_name">nazwa pokoju</string>
+    <string name="ok">OK</string>
+    <string name="submit">Zatwierdź</string>
+    <string name="settings">Ustawienia</string>
+    <string name="photo_processing_problem">Wystąpił problem podczas przetwarzania zdjęcia</string>
+    <string name="pick_photo">Wybierz zdjęcie z galerii</string>
+    <string name="take_photo">Zrób zdjęcie</string>
+    <string name="cancel">Anuluj</string>
+    <string name="select_picture">Wybierz zdjęcie</string>
+    <string name="quiz_questions">Pytania quizowe</string>
+    <string name="new_gamer">Nowy gracz</string>
+    <string name="wants_to_join">chce dołączyć do pokoju</string>
+    <string name="reject">ODRZUĆ</string>
+    <string name="close_your_room">Zamknij swój pokój</string>
+    <string name="enter_your_room">Dołącz do swojego pokoju</string>
+    <string name="select_language">Wybierz język</string>
+    <string name="system_language">Język systemowy</string>
+    <string name="polish">Polski</string>
+    <string name="english">English</string>
+    <string name="error">Błąd</string>
+    <string name="internet_problem">Wystąpił błąd podczas łączenia z serwerem. Sprawdź swoje połączenie z internetem.</string>
+    <string name="set_questions">Ustaw pytania</string>
+    <string name="max_five">Max 5</string>
+    <string name="start_new_game">Rozpocznij nową grę</string>
+    <string name="start_new_round">Rozpocznij nową rundę</string>
+    <string name="check_owners_answer">Sprawdź odpowiedź właściciela</string>
+    <string name="try_to_answer">Spróbuj odpowiedzieć</string>
 </resources>

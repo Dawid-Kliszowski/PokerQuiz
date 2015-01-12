@@ -51,6 +51,58 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="45dp"
-        android:layout_marginLeft="45dp"></LinearLayout>
+        android:layout_marginLeft="45dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/llQuestionHolder"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white_transparent"
+            android:padding="@dimen/margin_small"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/txtvQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/txtvAnswerFirst"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/margin_medium"/>
+
+            <TextView
+                android:id="@+id/txtvAnswerSecond"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/margin_small"/>
+
+            <TextView
+                android:id="@+id/txtvAnswerThird"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/margin_small"/>
+
+            <TextView
+                android:id="@+id/txtvAnswerFourth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/margin_small"/>
+
+
+        </LinearLayout>
+        </ScrollView>
 
 </RelativeLayout>

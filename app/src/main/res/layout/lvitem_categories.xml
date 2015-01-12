@@ -3,18 +3,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/margin_medium">
+    android:layout_height="80dp"
+    android:padding="@dimen/margin_medium"
+    android:gravity="center_vertical"
+    android:background="@drawable/divider_white">
+
+    <CheckBox
+        android:id="@+id/checkSelected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/margin_small"
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/imgvThumbnail"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
 
     <TextView
         android:id="@+id/txtvName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin_medium"/>
+        android:layout_marginLeft="@dimen/margin_medium"
+        android:layout_weight="1"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/imgvDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_download"
+            android:layout_margin="@dimen/margin_small"/>
+
+        <ProgressBar
+            android:id="@+id/pbDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"/>
+
+    </RelativeLayout>
+
 
 </LinearLayout>

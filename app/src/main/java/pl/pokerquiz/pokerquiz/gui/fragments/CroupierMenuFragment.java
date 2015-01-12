@@ -11,10 +11,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+
+import java.util.List;
 
 import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.R;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfo;
+import pl.pokerquiz.pokerquiz.datamodel.rest.Category;
+import pl.pokerquiz.pokerquiz.gui.activities.RoomActivity;
 import pl.pokerquiz.pokerquiz.networking.AcceptingManager;
 import pl.pokerquiz.pokerquiz.networking.ComunicationServerService;
 import pl.pokerquiz.pokerquiz.networking.CroupierInteractingInterface;
@@ -22,10 +28,14 @@ import pl.pokerquiz.pokerquiz.networking.OnTimeoutListener;
 import pl.pokerquiz.pokerquiz.utils.LocaleManager;
 
 public class CroupierMenuFragment extends Fragment implements CroupierInteractingInterface {
-    private Button mBtnNewPlayersAuto;
-    private Button mBtnDealCards;
+    private CheckBox mCheckNewPlayersAuto;
+    private EditText mEtGamersCount;
+    private Button mBtnStartNewGame;
+    private Button mBtnStartNewRound;
+    private Button mBtnSetQuestions;
 
     private ComunicationServerService mServerService;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,17 +55,28 @@ public class CroupierMenuFragment extends Fragment implements CroupierInteractin
     }
 
     private void findViews(View rootView) {
-        mBtnNewPlayersAuto = (Button) rootView.findViewById(R.id.btnNewPlayersAuto);
-        mBtnDealCards = (Button) rootView.findViewById(R.id.btnDealCards);
+        mCheckNewPlayersAuto = (CheckBox) rootView.findViewById(R.id.checkNewPlayersAuto);
+        mEtGamersCount = (EditText) rootView.findViewById(R.id.etGamersCount);
+        mBtnStartNewGame = (Button) rootView.findViewById(R.id.btnStartNewGame);
+        mBtnStartNewRound = (Button) rootView.findViewById(R.id.btnStartNewRound);
+        mBtnSetQuestions = (Button) rootView.findViewById(R.id.btnSetQuestions);
     }
 
     private void setListeners() {
-        mBtnNewPlayersAuto.setOnClickListener(view -> {
+        mCheckNewPlayersAuto.setOnClickListener(view -> {
             //todo
         });
 
-        mBtnDealCards.setOnClickListener(view -> {
-            mServerService.dealCards();
+        mBtnStartNewGame.setOnClickListener(view -> {
+            mServerService.startNewGame();
+        });
+
+        mBtnStartNewRound.setOnClickListener(view -> {
+            mServerService.startNewRound();
+        });
+
+        mBtnSetQuestions.setOnClickListener(view -> {
+            ((RoomActivity) getActivity()).setFragment(CategoriesListFragment.newInstance(this, mServerService.getCategories()), true);
         });
     }
 
@@ -97,5 +118,9 @@ public class CroupierMenuFragment extends Fragment implements CroupierInteractin
                 });
             });
         }
+    }
+
+    public void setCategories(List<Category> categories) {
+        mServerService.setCategories(categories);
     }
 }

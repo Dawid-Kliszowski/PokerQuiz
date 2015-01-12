@@ -5,6 +5,9 @@ import java.util.List;
 import pl.pokerquiz.pokerquiz.datamodel.rest.Category;
 import pl.pokerquiz.pokerquiz.datamodel.rest.GetQuestionsResponse;
 import retrofit.Callback;
+import retrofit.http.Body;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
 import retrofit.http.Query;
 
@@ -14,6 +17,7 @@ public interface RESTService {
     public void getCategories(Callback<List<Category>> callback);
 
     @POST("/get_questions.php")
-    public void getQuestions(@Query("category_id") long category_id,
+    @FormUrlEncoded
+    public void getQuestions(@Field("category_id") long category_id,
                              Callback<GetQuestionsResponse> callback);
 }

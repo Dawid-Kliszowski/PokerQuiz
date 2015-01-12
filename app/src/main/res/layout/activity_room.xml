@@ -1,128 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_green">
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin_medium"
-        android:layout_marginTop="@dimen/margin_small"
-        android:layout_marginRight="@dimen/margin_medium"
-        android:gravity="top">
-
-        <ImageView
-            android:id="@+id/imgvMenuButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_menu_black"
-            android:layout_marginTop="@dimen/margin_small"
-            android:layout_marginRight="@dimen/margin_medium"/>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <LinearLayout
-                android:id="@+id/llplayerHolderFirst"
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:layout_weight="1"
-                android:visibility="gone"/>
-
-            <LinearLayout
-                android:id="@+id/llplayerHolderSecond"
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:layout_weight="1"
-                android:visibility="gone"/>
-
-            <LinearLayout
-                android:id="@+id/llplayerHolderThird"
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:layout_weight="1"
-                android:visibility="gone"/>
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/imgvMenuButtonRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_medium"
-            android:src="@drawable/ic_menu_black"
-            android:visibility="gone"/>
-        </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginTop="@dimen/margin_small">
-
-            <pl.pokerquiz.pokerquiz.gui.views.SelfCardsView
-                android:id="@+id/selfCardsView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <pl.pokerquiz.pokerquiz.gui.views.CardsView
-                android:id="@+id/cardsView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="50dp"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:gravity="top">
 
             <ImageView
-                android:id="@+id/imgvBottomArrow"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:src="@drawable/arrow_up"
-                android:adjustViewBounds="true"
-                android:layout_alignParentBottom="true"
-                android:padding="@dimen/margin_small"/>
-            </RelativeLayout>
+                android:id="@+id/imgvMenuButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu_black"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginRight="@dimen/margin_medium"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:id="@+id/llplayerHolderFirst"
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:visibility="gone"/>
+
+                <LinearLayout
+                    android:id="@+id/llplayerHolderSecond"
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:visibility="gone"/>
+
+                <LinearLayout
+                    android:id="@+id/llplayerHolderThird"
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imgvMenuButtonRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/margin_medium"
+                android:src="@drawable/ic_menu_black"
+                android:visibility="gone"/>
+        </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:id="@+id/llplayerHolderFourth"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:gravity="center_vertical"
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:visibility="gone"
-                android:layout_marginRight="@dimen/margin_small"/>
+                android:layout_marginTop="@dimen/margin_small">
+
+                <pl.pokerquiz.pokerquiz.gui.views.SelfCardsView
+                    android:id="@+id/selfCardsView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <pl.pokerquiz.pokerquiz.gui.views.CardsView
+                    android:id="@+id/cardsView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="50dp"/>
+
+                <ImageView
+                    android:id="@+id/imgvBottomArrow"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:src="@drawable/arrow_up"
+                    android:adjustViewBounds="true"
+                    android:layout_alignParentBottom="true"
+                    android:padding="@dimen/margin_small"/>
+            </RelativeLayout>
 
             <LinearLayout
-                android:id="@+id/llplayerHolderFifth"
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:gravity="center_vertical"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:layout_marginRight="@dimen/margin_small"/>
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/llplayerHolderFourth"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:visibility="gone"
+                    android:layout_marginRight="@dimen/margin_small"/>
+
+                <LinearLayout
+                    android:id="@+id/llplayerHolderFifth"
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:visibility="gone"
+                    android:layout_marginRight="@dimen/margin_small"/>
             </LinearLayout>
         </LinearLayout>
 
-</LinearLayout>
+        </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/flFragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_black"
+        android:visibility="invisible"/>
+
+</RelativeLayout>

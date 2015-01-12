@@ -18,19 +18,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/btnNewPlayersAuto"
+        <CheckBox
+            android:id="@+id/checkNewPlayersAuto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:textColor="@color/white"
             android:text="auto"/>
+
+        <EditText
+            android:id="@+id/etGamersCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="60dp"
+            android:hint="@string/max_five"/>
         </LinearLayout>
 
     <Button
-        android:id="@+id/btnDealCards"
+        android:id="@+id/btnStartNewGame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_medium"
-        android:text="Deal the cards"/>
+        android:layout_marginTop="@dimen/margin_small"
+        android:text="@string/start_new_game"/>
+
+    <Button
+        android:id="@+id/btnStartNewRound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_small"
+        android:text="@string/start_new_round"/>
+
+    <Button
+        android:id="@+id/btnSetQuestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/set_questions"
+        android:layout_marginTop="@dimen/margin_small"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

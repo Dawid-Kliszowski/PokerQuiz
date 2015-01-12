@@ -1,0 +1,75 @@
+#
+# generated on 2015/01/10 05:55:41
+#
+# --table-start--
+dataClass=pl.pokerquiz.pokerquiz.datamodel.rest.Category
+tableName=category
+# --table-fields-start--
+# --field-start--
+fieldName=mId
+columnName=id
+id=true
+# --field-end--
+# --field-start--
+fieldName=mName
+columnName=name
+# --field-end--
+# --field-start--
+fieldName=mDescription
+columnName=description
+# --field-end--
+# --field-start--
+fieldName=mSmallImageUrl
+columnName=small_image_url
+# --field-end--
+# --field-start--
+fieldName=mBigImageUrl
+columnName=big_image_url
+# --field-end--
+# --field-start--
+fieldName=mDateChanged
+columnName=date_changed
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=pl.pokerquiz.pokerquiz.datamodel.rest.QuizQuestion
+tableName=quizquestion
+# --table-fields-start--
+# --field-start--
+fieldName=mId
+columnName=id
+id=true
+# --field-end--
+# --field-start--
+fieldName=mCategoryId
+columnName=category_id
+# --field-end--
+# --field-start--
+fieldName=mQuestion
+columnName=question
+# --field-end--
+# --field-start--
+fieldName=mAnswerFirst
+columnName=answer_1
+# --field-end--
+# --field-start--
+fieldName=mAnswerSecond
+columnName=answer_2
+# --field-end--
+# --field-start--
+fieldName=mAnswerThird
+columnName=answer_3
+# --field-end--
+# --field-start--
+fieldName=mAnswerFourth
+columnName=answer_4
+# --field-end--
+# --field-start--
+fieldName=mCorrectAnswer
+columnName=correct_answer
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

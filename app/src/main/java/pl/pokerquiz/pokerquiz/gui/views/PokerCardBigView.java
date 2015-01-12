@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.pokerquiz.pokerquiz.R;
+import pl.pokerquiz.pokerquiz.datamodel.rest.QuizQuestion;
 import pl.pokerquiz.pokerquiz.gameLogic.CardFigure;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
 
@@ -25,6 +26,12 @@ public class PokerCardBigView extends RelativeLayout {
     private ImageView mImgvColorRight;
     private LinearLayout mLlContent;
     private CardContentView mCardContentView;
+    private LinearLayout mLlQuestionHolder;
+    private TextView mTxtvQuestion;
+    private TextView mTxtvAnswerFirst;
+    private TextView mTxtvAnswerSecond;
+    private TextView mTxtvAnswerThird;
+    private TextView mTxtvAnswerFourth;
 
     private FullGameCard mFullGameCard;
 
@@ -50,6 +57,12 @@ public class PokerCardBigView extends RelativeLayout {
         mImgvColorBottom = (ImageView) findViewById(R.id.imgvColorBottom);
         mImgvColorRight = (ImageView) findViewById(R.id.imgvColorRight);
         mLlContent = (LinearLayout) findViewById(R.id.llContent);
+        mLlQuestionHolder = (LinearLayout) findViewById(R.id.llQuestionHolder);
+        mTxtvQuestion = (TextView) findViewById(R.id.txtvQuestion);
+        mTxtvAnswerFirst = (TextView) findViewById(R.id.txtvAnswerFirst);
+        mTxtvAnswerSecond = (TextView) findViewById(R.id.txtvAnswerSecond);
+        mTxtvAnswerThird = (TextView) findViewById(R.id.txtvAnswerThird);
+        mTxtvAnswerFourth = (TextView) findViewById(R.id.txtvAnswerFourth);
 
         mCardContentView = new CardContentView(getContext());
         mLlContent.addView(mCardContentView);
@@ -75,6 +88,28 @@ public class PokerCardBigView extends RelativeLayout {
 
         mCardContentView.setFigureImageBitmapParams(mFullGameCard.getPokerCard().getFigureResId(),
                 mFullGameCard.getPokerCard().getFigureIconParams());
+
+        if (mFullGameCard.getQuestion() != null) {
+            QuizQuestion question = mFullGameCard.getQuestion();
+            mTxtvQuestion.setText(question.getQuestion());
+            mTxtvAnswerFirst.setText(question.getAnswerFirst());
+            mTxtvAnswerSecond.setText(question.getAnswerSecond());
+            mTxtvAnswerThird.setText(question.getAnswerThird());
+            mTxtvAnswerFourth.setText(question.getAnswerFourth());
+        }
+
+    }
+
+    public void setQuestionVisible(boolean visible) {
+        if (visible) {
+            mLlQuestionHolder.setVisibility(VISIBLE);
+        } else {
+            mLlQuestionHolder.setVisibility(INVISIBLE);
+        }
+    }
+
+    public FullGameCard getCard() {
+        return mFullGameCard;
     }
 
     private static class CardContentView extends View {

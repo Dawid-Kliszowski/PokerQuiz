@@ -5,8 +5,6 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,9 +12,9 @@ import pl.pokerquiz.pokerquiz.BuildConfig;
 import pl.pokerquiz.pokerquiz.Constants;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfo;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfoResponse;
-import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Gamer;
-import pl.pokerquiz.pokerquiz.gameLogic.PokerCard;
+import pl.pokerquiz.pokerquiz.datamodel.rest.Category;
+import pl.pokerquiz.pokerquiz.gameLogic.Game;
 
 public class ComunicationServerService extends CommunicationBasicService {
     private ServerServiceBinder mBinder;
@@ -26,6 +24,7 @@ public class ComunicationServerService extends CommunicationBasicService {
     private HashMap<String, String> mIpAddressGamerIdMap = new HashMap<>();
 
     private CroupierInteractingInterface mCroupierInterface;
+    private Game mGame = new Game(new ArrayList<>());
 
     public ComunicationServerService() {
         mBinder = new ServerServiceBinder();
@@ -59,11 +58,7 @@ public class ComunicationServerService extends CommunicationBasicService {
     public void sendBroadcastMessage(String messageType, String message) {
         for (Gamer gamer : mGamerIdGamerMap.values()) {
             String ipAddress = mGamerIdIpAddressMap.get(gamer.getGamerId());
-            if (ipAddress != null) {
-                sendMessage(ipAddress, Constants.CLIENT_MESSAGE_PORT_NUMBER, messageType, message, null, false, 0l, null);
-            } else {
-                //todo
-            }
+            sendMessage(ipAddress, Constants.CLIENT_MESSAGE_PORT_NUMBER, messageType, message, null, false, 0l, null);
         }
     }
 
@@ -127,22 +122,25 @@ public class ComunicationServerService extends CommunicationBasicService {
     }
 
     private void broadcastActualGamersState() {
-        sendBroadcastMessage(MessageType.ACTUAL_GAMERS_STATE, GSON.toJson(mGamerIdGamerMap.values()));
+        sendBroadcastMessage(MessageType.ACTUAL_GAMERS_STATE, GSON.toJson(mGame.getGamers()));
     }
 
-    public void dealCards() {
-        List<PokerCard> allCards = new ArrayList<>(Arrays.asList(PokerCard.values()));
-        Collections.shuffle(allCards);
-        for (Gamer gamer : mGamerIdGamerMap.values()) {
-            List<FullGameCard> gamerCards = new ArrayList<>();
-            for (int i = 0; i < 5; i++) {
-                gamerCards.add(new FullGameCard(allCards.get(allCards.size() - 1), null));
-                allCards.remove(allCards.size() - 1);
-            }
+    public void startNewGame() {
+        mGame = new Game(mGamerIdGamerMap.values());
+        broadcastActualGamersState();
+    }
 
-            gamer.setCards(gamerCards);
-            broadcastActualGamersState();
-        }
+    public void startNewRound() {
+        mGame.startNewRound();
+        broadcastActualGamersState();
+    }
+
+    public void setCategories(List<Category> categories) {
+        mGame.setCategories(categories);
+    }
+
+    public List<Category> getCategories() {
+        return mGame.getCategories();
     }
 
     @Override

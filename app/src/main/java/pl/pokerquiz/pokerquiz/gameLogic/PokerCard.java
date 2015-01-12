@@ -1,10 +1,11 @@
 package pl.pokerquiz.pokerquiz.gameLogic;
 
+import java.io.Serializable;
 import java.util.List;
 
 import pl.pokerquiz.pokerquiz.R;
 
-public enum PokerCard {
+public enum PokerCard implements Serializable {
     hearts_two,
     hearts_three,
     hearts_four,
