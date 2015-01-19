@@ -14,7 +14,7 @@ public class SocketPacket {
     private long mTimestamp;
 
     @SerializedName("message_type")
-    private String mMessageType;
+    private MessageType mMessageType;
 
     @SerializedName("message")
     private String mMessage;
@@ -25,7 +25,7 @@ public class SocketPacket {
     @SerializedName("response_timeout")
     private long mResponseTimeout;
 
-    public SocketPacket(String messageType, String message) {
+    public SocketPacket(MessageType messageType, String message) {
         mMessageType = messageType;
         mMessage = message;
         mTimestamp = System.currentTimeMillis();
@@ -34,7 +34,7 @@ public class SocketPacket {
         mResponseTimeout = 0l;
     }
 
-    public SocketPacket(String messageType, String message, long responseTimeout) throws JSONException {
+    public SocketPacket(MessageType messageType, String message, long responseTimeout) throws JSONException {
         mMessageType = messageType;
         mMessage = message;
         mTimestamp = System.currentTimeMillis();
@@ -51,7 +51,7 @@ public class SocketPacket {
         return mMessage;
     }
 
-    public String getMessageType() {
+    public MessageType getMessageType() {
         return mMessageType;
     }
 

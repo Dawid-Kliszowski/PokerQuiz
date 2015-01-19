@@ -36,4 +36,5 @@
     <string name="start_new_round">Rozpocznij nową rundę</string>
     <string name="check_owners_answer">Sprawdź odpowiedź właściciela</string>
     <string name="try_to_answer">Spróbuj odpowiedzieć</string>
+    <string name="croupier_not_answered">Croupier didn\'t answer to your request in specified time.</string>
 </resources>

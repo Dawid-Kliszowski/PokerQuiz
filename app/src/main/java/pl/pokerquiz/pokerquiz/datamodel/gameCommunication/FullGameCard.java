@@ -3,22 +3,26 @@ package pl.pokerquiz.pokerquiz.datamodel.gameCommunication;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import pl.pokerquiz.pokerquiz.datamodel.rest.QuizQuestion;
 import pl.pokerquiz.pokerquiz.gameLogic.PokerCard;
 
 public class FullGameCard implements Serializable {
+    @SerializedName("uuid")
+    private String mUUID;
+
     @SerializedName("poker_card")
     private PokerCard mPokerCard;
 
     @SerializedName("question")
     private QuizQuestion mQuestion;
 
-    @SerializedName("visible")
-    private boolean mVisible;
-
     @SerializedName("active")
     private boolean mActive;
+
+    @SerializedName("is_answered_by_owner")
+    private boolean mIsAnsweredByOwner;
 
     @SerializedName("answered_correct")
     private boolean mAnsweredCorrect;
@@ -29,6 +33,12 @@ public class FullGameCard implements Serializable {
     public FullGameCard(PokerCard pokerCard, QuizQuestion question) {
         mPokerCard = pokerCard;
         mQuestion = question;
+        mUUID = UUID.randomUUID().toString();
+        mActive = true;
+    }
+
+    public String getUUID() {
+        return mUUID;
     }
 
     public PokerCard getPokerCard() {
@@ -39,12 +49,12 @@ public class FullGameCard implements Serializable {
         return mQuestion;
     }
 
-    public boolean isVisible() {
-        return mVisible;
+    public boolean isAnsweredByOwner() {
+        return mIsAnsweredByOwner;
     }
 
-    public void setVisible(boolean visible) {
-        mVisible = visible;
+    public void setAnsweredByOwner(boolean answered) {
+        mIsAnsweredByOwner = answered;
     }
 
     public boolean isActive() {
@@ -65,5 +75,9 @@ public class FullGameCard implements Serializable {
 
     public boolean isDeclaredCorrect() {
         return mDeclaredCorrect;
+    }
+
+    public void setDeclaredCorrect(boolean correct) {
+        mDeclaredCorrect = correct;
     }
 }

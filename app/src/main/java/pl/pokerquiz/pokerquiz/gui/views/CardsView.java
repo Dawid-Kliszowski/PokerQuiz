@@ -24,7 +24,9 @@ public class CardsView extends RelativeLayout {
     private boolean mExpanded = false;
     private float mChildDimensRatio = 0.7f;
     private OnAnimationsEndListener mAnimationsEndListener;
-    private List<View> mChildViews = new ArrayList<>();
+    private List<PokerCardBigView> mChildViews = new ArrayList<>();
+    private OnQuestionClickListener mOnQuestionClickListener;
+    private boolean mQuestionsVisible;
 
     private List<FullGameCard> mCards;
 
@@ -39,17 +41,53 @@ public class CardsView extends RelativeLayout {
     }
 
     private void init() {
-        for (int i = 0; i < CARDS_COUNT; i++) {
-            PokerCardBigView bigCardView = new PokerCardBigView(getContext());
-            mChildViews.add(bigCardView);
-            addView(bigCardView);
-
-            bigCardView.setOnClickListener(view -> {
-                resetCardsLayersOrder();
-                removeView(bigCardView);
-                addView(bigCardView);
-            });
+        if (mCards != null && mCards.size() > 0) {
+            fillChildViews();
         }
+    }
+
+    private void fillChildViews() {
+        if (mChildViews.size() == 0) {
+            for (int i = 0; i < CARDS_COUNT; i++) {
+                PokerCardBigView bigCardView = new PokerCardBigView(getContext());
+                mChildViews.add(bigCardView);
+                addView(bigCardView);
+                bigCardView.setQuestionVisible(false);
+
+                bigCardView.setOnClickListener(view -> {
+                    resetCardsLayersOrder();
+                    removeView(bigCardView);
+                    addView(bigCardView);
+                    if (mQuestionsVisible && bigCardView.getCard() != null && bigCardView.getCard().getQuestion() != null) {
+                        bigCardView.setOnClickListener(view1 -> {
+                            bigCardView.setQuestionVisible(true);
+                            if (bigCardView.getCard().isActive()) {
+                                bigCardView.setOnClickListener(view3 -> {
+                                    mOnQuestionClickListener.onQuestionClick(bigCardView.getCard());
+                                });
+                            } else {
+                                bigCardView.setOnClickListener(null);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    public void setQuestionsVisible(boolean visible) {
+        mQuestionsVisible = visible;
+    }
+
+    public void setOnQuestionClickListener(OnQuestionClickListener listener) {
+        mOnQuestionClickListener = listener;
+    }
+
+    private void removeChildViews() {
+        for (View childView : mChildViews) {
+            removeView(childView);
+        }
+        mChildViews.clear();
     }
 
     private Rect computeChildFrame(boolean expanded, int index) {
@@ -88,12 +126,13 @@ public class CardsView extends RelativeLayout {
 
     public void setCards(List<FullGameCard> cards) {
         mCards = cards;
-        for (int i = 0; i < CARDS_COUNT; i++) {
-            if (cards.size() > i) {
-                ((PokerCardBigView) getChildAt(i)).setPokerCard(cards.get(i));
-            } else {
-                //todo
+        if (cards != null && cards.size() > 0) {
+            fillChildViews();
+            for (int i = 0; i < mChildViews.size(); i++) {
+                mChildViews.get(i).setPokerCard(cards.get(i));
             }
+        } else {
+            removeChildViews();
         }
     }
 
@@ -225,8 +264,26 @@ public class CardsView extends RelativeLayout {
             removeView(childView);
         }
 
-        for (View childView : mChildViews) {
+        for (PokerCardBigView childView : mChildViews) {
             addView(childView);
+            childView.setQuestionVisible(false);
+            childView.setOnClickListener(view -> {
+                resetCardsLayersOrder();
+                removeView(childView);
+                addView(childView);
+                if (mQuestionsVisible && childView.getCard() != null && childView.getCard().getQuestion() != null) {
+                    childView.setOnClickListener(view1 -> {
+                        childView.setQuestionVisible(true);
+                        if (childView.getCard().isActive()) {
+                            childView.setOnClickListener(view3 -> {
+                                mOnQuestionClickListener.onQuestionClick(childView.getCard());
+                            });
+                        } else {
+                            childView.setOnClickListener(null);
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -236,5 +293,9 @@ public class CardsView extends RelativeLayout {
 
     public static interface OnAnimationsEndListener {
         public void onAnimationsEnd();
+    }
+
+    public static interface OnQuestionClickListener {
+        public void onQuestionClick(FullGameCard card);
     }
 }

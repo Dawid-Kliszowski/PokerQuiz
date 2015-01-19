@@ -97,8 +97,8 @@ public class PokerQuizApplication extends Application {
         }, BIND_AUTO_CREATE);
     }
 
-    public ComunicationServerService getServerService() {
-        return mServerService;
+    public static ComunicationServerService getServerService() {
+        return sApplication.mServerService;
     }
 
     public static PokerQuizApplication getInstance() {

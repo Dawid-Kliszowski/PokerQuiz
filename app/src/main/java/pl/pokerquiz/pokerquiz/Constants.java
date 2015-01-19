@@ -16,6 +16,7 @@ public class Constants {
     public static final long DELIVERY_CONFIRMATION_TIMEOUT = 2000l;
     public static final int MINIMUM_NICKNAME_LENGTH = 3;
     public static final int MAXIMUM_NICKNAME_LENGTH = 20;
-    public static final long ROOM_JOIN_ACCEPT_TIMEOUT = 20000l;
+    public static final long DEFAULT_CROUPIER_DECISION_TIMEOUT = 15000l;
+    public static final long DEFAULT_AUTOMATIC_DECISION_TIMEOUT = 5000l;
     public static final int MAXIMUM_NUMBER_OF_PLAYERS = 6;
 }

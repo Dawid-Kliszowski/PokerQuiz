@@ -10,6 +10,9 @@ public class AppPrefs {
     private static final String PREF_AVATAR_BASE64 = "avatar_base64";
     private static final String PREF_CURRENT_LOCALE = "current_locale";
 
+    private static final String PREF_CROUPIER_AUTO_ALLOW_GAMER = "croupier_auto_allow_gamer";
+    private static final String PREF_CROUPIER_AUTO_ALLOW_EXCHANGING = "croupier_auto_allow_exchanging";
+
     private final SharedPreferences mSharedPreferences;
 
 
@@ -37,5 +40,21 @@ public class AppPrefs {
 
     public String getCurrentLocale() {
         return mSharedPreferences.getString(PREF_CURRENT_LOCALE, null);
+    }
+
+    public void setCroupierGamerAcceptingAuto(boolean auto) {
+        mSharedPreferences.edit().putBoolean(PREF_CROUPIER_AUTO_ALLOW_GAMER, auto).apply();
+    }
+
+    public boolean getCroupierGamerAcceptingAuto() {
+        return mSharedPreferences.getBoolean(PREF_CROUPIER_AUTO_ALLOW_GAMER, false);
+    }
+
+    public void setCroupierCardExchangingAuto(boolean auto) {
+        mSharedPreferences.edit().putBoolean(PREF_CROUPIER_AUTO_ALLOW_EXCHANGING, auto).apply();
+    }
+
+    public boolean getCroupierCardsExchangingAuto() {
+        return mSharedPreferences.getBoolean(PREF_CROUPIER_AUTO_ALLOW_EXCHANGING, false);
     }
 }

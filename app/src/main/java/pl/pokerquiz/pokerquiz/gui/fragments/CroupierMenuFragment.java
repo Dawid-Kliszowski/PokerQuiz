@@ -29,9 +29,10 @@ import pl.pokerquiz.pokerquiz.utils.LocaleManager;
 
 public class CroupierMenuFragment extends Fragment implements CroupierInteractingInterface {
     private CheckBox mCheckNewPlayersAuto;
-    private EditText mEtGamersCount;
+    private CheckBox mCheckCardsExchangingAuto;
     private Button mBtnStartNewGame;
     private Button mBtnStartNewRound;
+    private Button mBtnStartNextPhase;
     private Button mBtnSetQuestions;
 
     private ComunicationServerService mServerService;
@@ -56,15 +57,20 @@ public class CroupierMenuFragment extends Fragment implements CroupierInteractin
 
     private void findViews(View rootView) {
         mCheckNewPlayersAuto = (CheckBox) rootView.findViewById(R.id.checkNewPlayersAuto);
-        mEtGamersCount = (EditText) rootView.findViewById(R.id.etGamersCount);
+        mCheckCardsExchangingAuto = (CheckBox) rootView.findViewById(R.id.checkCardsExchangingAuto);
         mBtnStartNewGame = (Button) rootView.findViewById(R.id.btnStartNewGame);
         mBtnStartNewRound = (Button) rootView.findViewById(R.id.btnStartNewRound);
+        mBtnStartNextPhase = (Button) rootView.findViewById(R.id.btnStartNextPhase);
         mBtnSetQuestions = (Button) rootView.findViewById(R.id.btnSetQuestions);
     }
 
     private void setListeners() {
         mCheckNewPlayersAuto.setOnClickListener(view -> {
-            //todo
+            PokerQuizApplication.getAppPrefs().setCroupierGamerAcceptingAuto(mCheckNewPlayersAuto.isChecked());
+        });
+
+        mCheckCardsExchangingAuto.setOnClickListener(view -> {
+            PokerQuizApplication.getAppPrefs().setCroupierCardExchangingAuto(mCheckCardsExchangingAuto.isChecked());
         });
 
         mBtnStartNewGame.setOnClickListener(view -> {
@@ -75,6 +81,10 @@ public class CroupierMenuFragment extends Fragment implements CroupierInteractin
             mServerService.startNewRound();
         });
 
+        mBtnStartNextPhase.setOnClickListener(viiew -> {
+            mServerService.startNextGamePhase();
+        });
+
         mBtnSetQuestions.setOnClickListener(view -> {
             ((RoomActivity) getActivity()).setFragment(CategoriesListFragment.newInstance(this, mServerService.getCategories()), true);
         });
@@ -82,12 +92,30 @@ public class CroupierMenuFragment extends Fragment implements CroupierInteractin
 
     @Override
     public void onGamerConnected(GamerInfo gamerInfo, AcceptingManager acceptManager) {
-        if (getActivity() != null) {
+        if (PokerQuizApplication.getAppPrefs().getCroupierGamerAcceptingAuto()) {
+            acceptManager.setAccept(true);
+        } else {
             Resources localizedRes = LocaleManager.getInstance(getActivity()).getLocalizedResources();
+            showDecisionDialog(localizedRes.getString(R.string.new_gamer), gamerInfo.getNick() + " " + localizedRes.getString(R.string.wants_to_join), acceptManager);
+        }
+    }
+
+    @Override
+    public void onCardsExchanging(String gamerNick, int numberOfCards, AcceptingManager acceptManager) {
+        if (PokerQuizApplication.getAppPrefs().getCroupierCardsExchangingAuto()) {
+            acceptManager.setAccept(true);
+        } else {
+            Resources localizedRes = LocaleManager.getInstance(getActivity()).getLocalizedResources();
+            showDecisionDialog(localizedRes.getString(R.string.exchanging_cards), gamerNick + " " + localizedRes.getString(R.string.wants_to_exchange_cards), acceptManager);
+        }
+    }
+
+    private void showDecisionDialog(String title, String message, AcceptingManager acceptManager) {
+        if (getActivity() != null) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.new_gamer)
-                    .setMessage(gamerInfo.getNick() + " " + localizedRes.getString(R.string.wants_to_join))
+            builder.setTitle(title)
+                    .setMessage(message)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -117,6 +145,8 @@ public class CroupierMenuFragment extends Fragment implements CroupierInteractin
                     }
                 });
             });
+        } else {
+            acceptManager.setAccept(false);
         }
     }
 

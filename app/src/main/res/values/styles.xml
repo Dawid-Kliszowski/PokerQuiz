@@ -41,4 +41,9 @@
         <item name="android:background">@drawable/edit_text_background</item>
         <item name="android:padding">@dimen/edit_text_padding</item>
     </style>
+
+    <style name="dialog_animations_slide" >
+        <item name="android:windowEnterAnimation">@anim/top_dialog_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/top_dialog_slide_out</item>
+    </style>
 </resources>

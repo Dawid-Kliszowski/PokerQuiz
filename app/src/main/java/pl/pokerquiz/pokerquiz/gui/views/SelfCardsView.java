@@ -3,6 +3,7 @@ package pl.pokerquiz.pokerquiz.gui.views;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.SparseBooleanArray;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,10 @@ public class SelfCardsView extends ViewGroup {
     private int mHeightOnNotExpanded;
     private OnAnimationsEndListener mAnimationsEndListener;
     private List<PokerCardBigView> mChildViews = new ArrayList<>();
-    private OnClickListener mOnQuestionClickListener;
+    private SparseBooleanArray mSelectionArray = new SparseBooleanArray();
+    private OnQuestionClickedListener mOnQuestionClickListener;
+    private boolean mExchangeMode;
+    private boolean mQuestionsVisible;
 
     private List<FullGameCard> mCards;
 
@@ -70,7 +74,7 @@ public class SelfCardsView extends ViewGroup {
         return new Rect(leftOffset, getHeight() - mChildHeight - bottomOffset, leftOffset + mChildWidth, getHeight() - bottomOffset);
     }
 
-    public void setOnQuestionClickListener(OnClickListener listener) {
+    public void setOnQuestionClickListener(OnQuestionClickedListener listener) {
         mOnQuestionClickListener = listener;
     }
 
@@ -116,24 +120,60 @@ public class SelfCardsView extends ViewGroup {
         }
     }
 
+    public void setExchangeMode(boolean exchange) {
+        mExchangeMode = exchange;
+        if (!exchange) {
+            mSelectionArray.clear();
+        }
+        for (PokerCardBigView cardView : mChildViews) {
+            cardView.setExchangeIconVisible(exchange);
+            if (!exchange) {
+                cardView.setOverlayVisible(false);
+            }
+        }
+        resetCardsLayersOrder();
+    }
+
+    public void setQuestionsVisible(boolean visible) {
+        mQuestionsVisible = visible;
+    }
+
     private void fillChildViews() {
         if (mChildViews.size() == 0) {
             for (int i = 0; i < CARDS_COUNT; i++) {
                 PokerCardBigView bigCardView = new PokerCardBigView(getContext());
                 mChildViews.add(bigCardView);
                 addView(bigCardView);
-                bigCardView.setQuestionVisible(true);
+                bigCardView.setQuestionVisible(false);
 
+                final int finalI = i;
                 bigCardView.setOnClickListener(view -> {
                     resetCardsLayersOrder();
                     removeView(bigCardView);
                     addView(bigCardView);
-                    if (bigCardView.getCard() != null && bigCardView.getCard().getQuestion() != null) {
-                        bigCardView.setOnClickListener(view1 -> {
-                            bigCardView.setQuestionVisible(true);
-                            bigCardView.setOnClickListener(mOnQuestionClickListener);
-                        });
+
+                    if (mExchangeMode) {
+                        boolean currentState = !mSelectionArray.get(finalI);
+                        mSelectionArray.put(finalI, currentState);
+                        bigCardView.setOverlayVisible(currentState);
+                        if (mOnQuestionClickListener != null) {
+                            mOnQuestionClickListener.onQuestionClicked(bigCardView.getCard());
+                        }
+                    } else if (mQuestionsVisible) {
+                        if (bigCardView.getCard() != null && bigCardView.getCard().getQuestion() != null) {
+                            bigCardView.setOnClickListener(view1 -> {
+                                bigCardView.setQuestionVisible(true);
+                                if (bigCardView.getCard().isActive()) {
+                                    bigCardView.setOnClickListener(view3 -> {
+                                        mOnQuestionClickListener.onQuestionClicked(bigCardView.getCard());
+                                    });
+                                } else {
+                                    bigCardView.setOnClickListener(null);
+                                }
+                            });
+                        }
                     }
+
                 });
             }
             invalidate();
@@ -283,19 +323,39 @@ public class SelfCardsView extends ViewGroup {
             removeView(childView);
         }
 
-        for (PokerCardBigView childView : mChildViews) {
+        for (int i = 0; i < mChildViews.size(); i++) {
+            PokerCardBigView childView = mChildViews.get(i);
             addView(childView);
-            childView.setQuestionVisible(true);
+            childView.setQuestionVisible(false);
+
+            final int finalI = i;
             childView.setOnClickListener(view -> {
                 resetCardsLayersOrder();
                 removeView(childView);
                 addView(childView);
-                if (childView.getCard() != null && childView.getCard().getQuestion() != null) {
-                    childView.setOnClickListener(view1 -> {
-                        childView.setQuestionVisible(true);
-                        childView.setOnClickListener(mOnQuestionClickListener);
-                    });
+
+                if (mExchangeMode) {
+                    boolean currentState = !mSelectionArray.get(finalI);
+                    mSelectionArray.put(finalI, currentState);
+                    childView.setOverlayVisible(currentState);
+                    if (mOnQuestionClickListener != null) {
+                        mOnQuestionClickListener.onQuestionClicked(childView.getCard());
+                    }
+                } else if (mQuestionsVisible) {
+                    if (childView.getCard() != null && childView.getCard().getQuestion() != null) {
+                        childView.setOnClickListener(view1 -> {
+                            childView.setQuestionVisible(true);
+                            if (childView.getCard().isActive()) {
+                                childView.setOnClickListener(view3 -> {
+                                    mOnQuestionClickListener.onQuestionClicked(childView.getCard());
+                                });
+                            } else {
+                                childView.setOnClickListener(null);
+                            }
+                        });
+                    }
                 }
+
             });
         }
     }
@@ -306,5 +366,19 @@ public class SelfCardsView extends ViewGroup {
 
     public static interface OnAnimationsEndListener {
         public void onAnimationsEnd();
+    }
+
+    public List<FullGameCard> getSelectedCards() {
+        List<FullGameCard> selectedCards = new ArrayList<>();
+        for (int i = 0; i < mChildViews.size(); i++) {
+            if (mSelectionArray.get(i)) {
+                selectedCards.add(mCards.get(i));
+            }
+        }
+        return selectedCards;
+    }
+
+    public static interface OnQuestionClickedListener {
+        public void onQuestionClicked(FullGameCard card);
     }
 }

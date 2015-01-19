@@ -1,10 +1,14 @@
 package pl.pokerquiz.pokerquiz.gui.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
@@ -15,11 +19,13 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -30,9 +36,17 @@ import java.util.List;
 
 import pl.pokerquiz.pokerquiz.PokerQuizApplication;
 import pl.pokerquiz.pokerquiz.R;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.BasicMoveResponse;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.CroupierAcceptResponse;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.FullGameCard;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GameState;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Gamer;
-import pl.pokerquiz.pokerquiz.gameLogic.OnServerResponseListener;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.GamerInfoResponse;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.Notification;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.MessageType;
+import pl.pokerquiz.pokerquiz.gameLogic.GamePhase;
+import pl.pokerquiz.pokerquiz.gui.dialogs.TopNotificationDialog;
+import pl.pokerquiz.pokerquiz.networking.OnServerResponseListener;
 import pl.pokerquiz.pokerquiz.gui.dialogs.BigCardDialogFragment;
 import pl.pokerquiz.pokerquiz.gui.fragments.CroupierMenuFragment;
 import pl.pokerquiz.pokerquiz.gui.fragments.MainMenuFragment;
@@ -40,6 +54,7 @@ import pl.pokerquiz.pokerquiz.gui.views.CardsView;
 import pl.pokerquiz.pokerquiz.networking.ComunicationClientService;
 import pl.pokerquiz.pokerquiz.networking.GamerInteractingInterface;
 import pl.pokerquiz.pokerquiz.gui.views.SelfCardsView;
+import pl.pokerquiz.pokerquiz.networking.ServerStatusConstans;
 
 public class RoomActivity extends Activity implements GamerInteractingInterface {
     private ComunicationClientService mClientService;
@@ -53,6 +68,7 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
     private List<LinearLayout> mPlayerHolders;
     private CardsView mCardsView;
     private SelfCardsView mSelfCardsView;
+    private Button mBtnExchangeCards;
 
     private DisplayImageOptions mAvatarOptions;
     private boolean mIsCroupier;
@@ -62,7 +78,7 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
 
-        mIsCroupier = PokerQuizApplication.getInstance().getServerService() != null;
+        mIsCroupier = PokerQuizApplication.getServerService() != null;
 
         findViews();
         setListeners();
@@ -114,6 +130,7 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
         mImgvMenuButton = (ImageView) findViewById(R.id.imgvMenuButton);
         mImgvMenuButtonRight = (ImageView) findViewById(R.id.imgvMenuButtonRight);
         mImgvBottomArrow = (ImageView) findViewById(R.id.imgvBottomArrow);
+        mBtnExchangeCards = (Button) findViewById(R.id.btnExchangeCards);
 
         mPlayerHolders = new ArrayList<>();
         mPlayerHolders.add((LinearLayout) findViewById(R.id.llplayerHolderFirst));
@@ -191,9 +208,6 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
             mSelfCardsView.switchState(true);
         });
 
-        mSelfCardsView.setOnQuestionClickListener(view -> {
-            new BigCardDialogFragment().show(getFragmentManager(), "big_card_dialog");
-        });
     }
 
     private void initClientService() {
@@ -203,12 +217,30 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
                 public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                     mClientService = ((ComunicationClientService.ClientServiceBinder) iBinder).getService();
                     mClientService.registerGamerInterface(RoomActivity.this);
-                    mClientService.joinRoom(new OnServerResponseListener() {
-                        @Override
-                        public void onServerResponse(boolean success, int serverStatus, String messageType, String message) {
 
-                        }
-                    });
+                    if (mClientService.isJoinedRoom()) {
+                        mClientService.refreshGameState();
+                    } else {
+                        Dialog progressDialog = showProgressDialog(R.string.joining_room);
+                        mClientService.joinRoom(new OnServerResponseListener() {
+                            @Override
+                            public void onServerResponse(boolean success, int serverStatus, MessageType messageType, String message) {
+                                progressDialog.dismiss();
+                                if (success) {
+                                    GamerInfoResponse response = new Gson().fromJson(message, GamerInfoResponse.class);
+                                    if (response.isAccepted()) {
+                                        showDialogOneButton(R.string.response, R.string.croupier_accepted, null);
+                                    } else {
+                                        showDialogOneButton(R.string.response, R.string.croupier_rejected, () -> {
+                                            finish();
+                                        });
+                                    }
+                                } else {
+                                    handleServerErrors(serverStatus);
+                                }
+                            }
+                        });
+                    }
                 }
 
                 @Override
@@ -251,20 +283,93 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
     }
 
     @Override
-    public void onGamersStateChanged(Gamer gamerMe, List<Gamer> gamers) {
+    public void onGamersStateChanged(Gamer gamerMe, List<Gamer> gamers, int gamePhase) {
         new Handler(Looper.getMainLooper()).post(() -> {
             if (gamerMe != null && gamerMe.getCards() != null) {
                 mSelfCardsView.setCards(gamerMe.getCards());
+
+                if (gamePhase == GamePhase.cards_exchanging.ordinal()) {
+                    mSelfCardsView.setQuestionsVisible(false);
+                    mSelfCardsView.setExchangeMode(gamerMe.canExchangeCards());
+
+                    if (gamerMe.canExchangeCards()) {
+                        mSelfCardsView.setOnQuestionClickListener(card -> {
+                            if (mSelfCardsView.getSelectedCards().size() > 0) {
+                                mBtnExchangeCards.setVisibility(View.VISIBLE);
+                                mBtnExchangeCards.setOnClickListener(view -> {
+                                    exchangeCards();
+                                });
+                            } else {
+                                mBtnExchangeCards.setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        mBtnExchangeCards.setVisibility(View.GONE);
+                        mBtnExchangeCards.setOnClickListener(null);
+                    }
+                } else {
+                    mBtnExchangeCards.setVisibility(View.GONE);
+                    mBtnExchangeCards.setOnClickListener(null);
+                    mSelfCardsView.setQuestionsVisible(true);
+                    mSelfCardsView.setExchangeMode(false);
+                    mSelfCardsView.setOnQuestionClickListener(card -> {
+                        BigCardDialogFragment.newInstance(card, true).show(getFragmentManager(), "big_card_dialog");
+                    });
+                }
             } else {
                 mSelfCardsView.setCards(null);
             }
+
+            if (gamePhase > GamePhase.self_questions_answering.ordinal()) {
+                mCardsView.setQuestionsVisible(true);
+            } else {
+                mCardsView.setQuestionsVisible(false);
+            }
+
             for (int i = 0; i < gamers.size(); i++) {
-                fillGamerCard(mPlayerHolders.get(i), gamers.get(i));
+                fillGamerCard(mPlayerHolders.get(i), gamers.get(i), gamePhase > GamePhase.self_questions_answering.ordinal());
             }
         });
     }
 
-    private void fillGamerCard(LinearLayout gamerCardHolder, Gamer gamer) {
+    public void answerSelfQuestion(String cardUUID, int answer) {
+        mClientService.answerSelfQuestion(cardUUID, answer, (success, serverStatus, messageType, message) -> {
+            if (success) {
+                BasicMoveResponse response = new Gson().fromJson(message, BasicMoveResponse.class);
+                if (response.getMoveStatus() == BasicMoveResponse.STATUS_SUCCESS) {
+                    showDialogOneButton(R.string.success, R.string.you_answered_correctly, null);
+                } else if (response.getMoveStatus() == BasicMoveResponse.STATUS_FAILURE) {
+                    showDialogOneButton(R.string.failure, R.string.you_answered_wrong, null);
+                } else if (response.getMoveStatus() == BasicMoveResponse.STATUS_NOT_ALLOWED) {
+                    showDialogOneButton(R.string.failure, R.string.move_not_allowed, null);
+                }
+            } else {
+                handleServerErrors(serverStatus);
+            }
+        });
+    }
+
+    public void declareQuestionAsCorrect(String cardUUID) {
+        mClientService.declareQuestionAsCorrect(cardUUID, (success, serverStatus, messageType, message) -> {
+            if (success) {
+                BasicMoveResponse response = new Gson().fromJson(message, BasicMoveResponse.class);
+                if (response.getMoveStatus() == BasicMoveResponse.STATUS_SUCCESS) {
+                    showDialogOneButton(R.string.success, R.string.you_declared_as_correct, null);
+                } else if (response.getMoveStatus() == BasicMoveResponse.STATUS_NOT_ALLOWED) {
+                    showDialogOneButton(R.string.failure, R.string.move_not_allowed, null);
+                }
+            } else {
+                handleServerErrors(serverStatus);
+            }
+        });
+    }
+
+    @Override
+    public void onNotificationRecived(Notification notification) {
+        TopNotificationDialog.newInstance(notification).show(getFragmentManager(), "top_dialog");
+    }
+
+    private void fillGamerCard(LinearLayout gamerCardHolder, Gamer gamer, boolean showCards) {
         gamerCardHolder.setVisibility(View.VISIBLE);
 
         GamerCardViewHolder viewHolder = (GamerCardViewHolder) gamerCardHolder.getTag();
@@ -274,35 +379,123 @@ public class RoomActivity extends Activity implements GamerInteractingInterface 
         for (int i = 0; i < 5; i++) {
             MicroGameCardViewHolder cardHolder = viewHolder.mMicroCardHolders.get(i);
 
-            if (gamer.getCards() != null && gamer.getCards().size() > i) {
+            if (gamer.getCards() != null && gamer.getCards().size() > i && showCards) {
                 FullGameCard card = gamer.getCards().get(i);
                 cardHolder.mLlContentHolder.setVisibility(View.VISIBLE);
                 cardHolder.mTxtvFigure.setText(card.getPokerCard().getSign());
                 cardHolder.mImgvCardColor.setImageResource(card.getPokerCard().getColorResId());
+                if (card.isDeclaredCorrect()) {
+                    cardHolder.mImgvPoint.setImageResource(R.drawable.green_point);
+                } else {
+                    cardHolder.mImgvPoint.setImageResource(R.drawable.red_point);
+                }
             } else {
                 cardHolder.mLlContentHolder.setVisibility(View.INVISIBLE);
             }
         }
 
-        gamerCardHolder.setOnClickListener(view -> {
-            if (mCardsView.isExpanded()) {
-                mCardsView.setOnAnimationsEndListener(() -> {
+        if (showCards) {
+            gamerCardHolder.setOnClickListener(view -> {
+                if (mCardsView.isExpanded()) {
+                    mCardsView.setOnAnimationsEndListener(() -> {
+                        mCardsView.setCards(gamer.getCards());
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            mCardsView.switchState(true);
+                        }, 250l);
+                    });
+                    mCardsView.switchState(true);
+                } else {
                     mCardsView.setCards(gamer.getCards());
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         mCardsView.switchState(true);
+                        if (mSelfCardsView.isExpanded()) {
+                            mSelfCardsView.switchState(true);
+                            mImgvBottomArrow.setImageResource(R.drawable.arrow_up);
+                        }
                     }, 250l);
-                });
-                mCardsView.switchState(true);
-            } else {
-                mCardsView.setCards(gamer.getCards());
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    mCardsView.switchState(true);
-                    if (mSelfCardsView.isExpanded()) {
-                        mSelfCardsView.switchState(true);
-                        mImgvBottomArrow.setImageResource(R.drawable.arrow_up);
-                    }
-                }, 250l);
+                }
+            });
+
+            mCardsView.setOnQuestionClickListener(selectedCard -> {
+                BigCardDialogFragment.newInstance(selectedCard, false).show(getFragmentManager(), "poker_card_dialog");
+            });
+        }
+    }
+
+    private void handleServerErrors(int status) {
+        if (status == ServerStatusConstans.STATUS_NOT_FOUND) {
+            showDialogOneButton(R.string.connection_errer, R.string.problem_connecting_croupier, null);
+        } else if (status == ServerStatusConstans.STATUS_TIMEOUT) {
+            showDialogOneButton(R.string.timeout, R.string.croupier_not_answered, null);
+        }
+    }
+
+    private void exchangeCards() {
+        showDialog(R.string.exchanging_cards, R.string.sure_exchanging_cards, () -> {
+            Dialog progress = showProgressDialog(R.string.exchanging_cards);
+
+            List<String> selectedCardsIds = new ArrayList<>();
+            for (FullGameCard card : mSelfCardsView.getSelectedCards()) {
+                selectedCardsIds.add(card.getUUID());
             }
+
+            mClientService.exchangeCards(selectedCardsIds, (success, serverStatus, messageType, message) -> {
+                progress.dismiss();
+                if (success) {
+                    CroupierAcceptResponse response = new Gson().fromJson(message, CroupierAcceptResponse.class);
+                    if (response.isAccepted()) {
+                        showDialogOneButton(R.string.response, R.string.croupier_accepted, null);
+                    } else {
+                        showDialogOneButton(R.string.response, R.string.croupier_rejected, null);
+                    }
+                } else {
+                    handleServerErrors(serverStatus);
+                }
+            });
+        });
+    }
+
+    private Dialog showProgressDialog(int messageResId) {
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setTitle(messageResId);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        return dialog;
+    }
+
+    private void showDialog(int titleResId, int messageResId, Runnable onPositiveClick) {
+       new Handler(Looper.getMainLooper()).post(() -> {
+           Dialog dialog = new AlertDialog.Builder(this)
+                   .setTitle(titleResId)
+                   .setMessage(messageResId)
+                   .setNegativeButton(R.string.cancel, (dialogInterface, which) -> {
+                       dialogInterface.dismiss();
+                   })
+                   .setPositiveButton(R.string.ok, (dialogInterface, which) -> {
+                       dialogInterface.dismiss();
+                       onPositiveClick.run();
+                   })
+                   .setCancelable(false)
+                   .show();
+           dialog.setCanceledOnTouchOutside(false);
+       });
+    }
+
+    private void showDialogOneButton(int titleResId, int messageResId, Runnable onClick) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Dialog dialog = new AlertDialog.Builder(this)
+                    .setTitle(titleResId)
+                    .setMessage(messageResId)
+                    .setPositiveButton(R.string.ok, (dialogInterface, which) -> {
+                        dialogInterface.dismiss();
+                        if (onClick != null) {
+                            onClick.run();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+            dialog.setCanceledOnTouchOutside(false);
         });
     }
 

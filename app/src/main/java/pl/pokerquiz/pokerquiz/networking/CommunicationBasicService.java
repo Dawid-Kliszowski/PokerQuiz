@@ -18,9 +18,9 @@ import java.util.HashMap;
 import pl.pokerquiz.pokerquiz.BuildConfig;
 import pl.pokerquiz.pokerquiz.Constants;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.ConfirmationPacket;
+import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.MessageType;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.ResponsePacket;
 import pl.pokerquiz.pokerquiz.datamodel.gameCommunication.basicProtocol.SocketPacket;
-import pl.pokerquiz.pokerquiz.gameLogic.OnServerResponseListener;
 
 public abstract class CommunicationBasicService extends Service {
     protected static final Gson GSON = new Gson();
@@ -37,9 +37,9 @@ public abstract class CommunicationBasicService extends Service {
     private HashMap<String, TimeoutThread> mChecksumTimeoutThreadsMap = new HashMap<>();
     private HashMap<String, TimeoutThread> mChecksumResponseTimeoutThreadsMap = new HashMap<>();
     private HashMap<String, OnDeliveredListener> mChecksumDeliveredListenersMap = new HashMap<>();
-    private HashMap<String, OnServerResponseListener> mChecksumMessageListenersMap = new HashMap<>();
+    private HashMap<String, OnServerResponseListener> mChecksumResponseListenersMap = new HashMap<>();
 
-    protected abstract void onPacketReceived(String ipAddres, String messageType, String message, ResponseManager responseManager);
+    protected abstract void onPacketReceived(String ipAddres, MessageType messageType, String message, ResponseManager responseManager);
     protected abstract void onDeliveryFailure(String ipAddres);
 
     @Override
@@ -270,9 +270,9 @@ public abstract class CommunicationBasicService extends Service {
                         sendConfirmationPacket(senderIp, confirmationPort, responsePacket.getChecksum(), ServerStatusConstans.STATUS_OK);
 
                         removeResponseTimeoutThread(responsePacket.getRequestChecksum());
-                        OnServerResponseListener listener = mChecksumMessageListenersMap.get(responsePacket.getRequestChecksum());
+                        OnServerResponseListener listener = mChecksumResponseListenersMap.get(responsePacket.getRequestChecksum());
                         if (listener != null) {
-                            mChecksumMessageListenersMap.remove(responsePacket.getRequestChecksum());
+                            mChecksumResponseListenersMap.remove(responsePacket.getRequestChecksum());
                             listener.onServerResponse(true, responsePacket.getStatus(), responsePacket.getMessageType(), responsePacket.getMessage());
                         }
 
@@ -318,7 +318,7 @@ public abstract class CommunicationBasicService extends Service {
     }
 
 
-    protected void sendMessage(String ipAddress, int port, String messageType, String message, OnDeliveredListener deliveredListener, boolean requiresResponse, long responseTimeout, OnServerResponseListener responseListener) {
+    protected void sendMessage(String ipAddress, int port, MessageType messageType, String message, OnDeliveredListener deliveredListener, boolean requiresResponse, long responseTimeout, OnServerResponseListener responseListener) {
         new Thread(() -> {
             try {
                 final Socket socket = new Socket(ipAddress, port);
@@ -329,8 +329,9 @@ public abstract class CommunicationBasicService extends Service {
                 if (requiresResponse) {
                     packet = new SocketPacket(messageType, message, responseTimeout);
                     if (responseListener != null) {
-                        mChecksumMessageListenersMap.put(packet.getChecksum(), responseListener);
+                        mChecksumResponseListenersMap.put(packet.getChecksum(), responseListener);
                     }
+                    setResponseTimeoutThread(responseTimeout, ipAddress, packet.getChecksum());
                 } else {
                     packet = new SocketPacket(messageType, message);
                 }
@@ -358,7 +359,7 @@ public abstract class CommunicationBasicService extends Service {
         }).start();
     }
 
-    private void sendResponse(String ipAddress, int port, String requestChecksum, String messageType, String message, OnDeliveredListener deliveredListener) {
+    private void sendResponse(String ipAddress, int port, String requestChecksum, MessageType messageType, String message, OnDeliveredListener deliveredListener) {
         new Thread(() -> {
             try {
                 final Socket socket = new Socket(ipAddress, port);
@@ -415,17 +416,17 @@ public abstract class CommunicationBasicService extends Service {
                 OnDeliveredListener deliveredListener = mChecksumDeliveredListenersMap.get(checksum);
                 if (deliveredListener != null) {
                     mChecksumDeliveredListenersMap.remove(checksum);
-                    deliveredListener.onDelivered(false, ServerStatusConstans.STATUS_TIMEOUT);
+                    deliveredListener.onDelivered(false, ServerStatusConstans.STATUS_NOT_FOUND);
                 }
-                OnServerResponseListener listener = mChecksumMessageListenersMap.get(checksum);
+                OnServerResponseListener listener = mChecksumResponseListenersMap.get(checksum);
                 if (listener != null) {
-                    mChecksumMessageListenersMap.remove(checksum);
-                    listener.onServerResponse(false, ServerStatusConstans.STATUS_TIMEOUT, null, null);
+                    mChecksumResponseListenersMap.remove(checksum);
+                    listener.onServerResponse(false, ServerStatusConstans.STATUS_NOT_FOUND, null, null);
                 }
 
                 onDeliveryFailure(ipAddress);
                 if (BuildConfig.DEBUG) {
-                    Log.d(mTag, "packet timeout: IP " + ipAddress + ", checksum: " + checksum);
+                    Log.d(mTag, "packet confirmation timeout: IP " + ipAddress + ", checksum: " + checksum);
                 }
             } catch (InterruptedException ie) {
                 // no need to handle
@@ -433,6 +434,26 @@ public abstract class CommunicationBasicService extends Service {
         });
 
         mChecksumTimeoutThreadsMap.put(checksum, timeoutThread);
+        timeoutThread.start();
+    }
+
+    private void setResponseTimeoutThread(long responseTimeout, String ipAddress, String messageChecksum) {
+        TimeoutThread timeoutThread = new TimeoutThread(ipAddress, messageChecksum, () -> {
+            try {
+                Thread.sleep(responseTimeout);
+                mChecksumResponseTimeoutThreadsMap.remove(messageChecksum);
+
+                OnServerResponseListener listener = mChecksumResponseListenersMap.get(messageChecksum);
+                if (listener != null) {
+                    mChecksumResponseListenersMap.remove(messageChecksum);
+                    listener.onServerResponse(false, ServerStatusConstans.STATUS_TIMEOUT, null, null);
+                }
+            } catch (InterruptedException ie) {
+                // no need to handle
+            }
+        });
+
+        mChecksumResponseTimeoutThreadsMap.put(messageChecksum, timeoutThread);
         timeoutThread.start();
     }
 
@@ -469,7 +490,7 @@ public abstract class CommunicationBasicService extends Service {
             mTimeoutListener = listener;
         }
 
-        public boolean sendResponse(String messageType, String message, OnDeliveredListener deliveredListener) {
+        public boolean sendResponse(MessageType messageType, String message, OnDeliveredListener deliveredListener) {
             if (!mIsUsed) {
                 mIsUsed = true;
                 mResponseListener.onResponse(messageType, message, deliveredListener);
@@ -488,6 +509,6 @@ public abstract class CommunicationBasicService extends Service {
     }
 
     static interface OnResponseListener {
-        public void onResponse(String responseType, String response, OnDeliveredListener deliveredListener);
+        public void onResponse(MessageType responseType, String response, OnDeliveredListener deliveredListener);
     }
 }

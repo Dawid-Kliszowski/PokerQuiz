@@ -15,7 +15,7 @@ public class ResponsePacket {
     private long mTimestamp;
 
     @SerializedName("message_type")
-    private String mMessageType;
+    private MessageType mMessageType;
 
     @SerializedName("message")
     private String mMessage;
@@ -23,7 +23,7 @@ public class ResponsePacket {
     @SerializedName("status")
     private int mStatus;
 
-    public ResponsePacket(String messageType, String message, int status, String requestChecksum) {
+    public ResponsePacket(MessageType messageType, String message, int status, String requestChecksum) {
         mMessageType = messageType;
         mMessage = message;
         mTimestamp = System.currentTimeMillis();
@@ -44,7 +44,7 @@ public class ResponsePacket {
         return mMessage;
     }
 
-    public String getMessageType() {
+    public MessageType getMessageType() {
         return mMessageType;
     }
 

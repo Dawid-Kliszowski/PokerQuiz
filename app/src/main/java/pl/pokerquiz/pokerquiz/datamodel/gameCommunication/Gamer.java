@@ -22,6 +22,9 @@ public class Gamer implements Serializable {
     @SerializedName("cards")
     private List<FullGameCard> mCards;
 
+    @SerializedName("can_exchange_cards")
+    private boolean mCanExchangeCards;
+
     public Gamer(GamerInfo gamerInfo) {
         mDeviceId = gamerInfo.getDeviceId();
         mNickname = gamerInfo.getNick();
@@ -47,5 +50,13 @@ public class Gamer implements Serializable {
 
     public String getAvatarBase64() {
         return mAvatarBase64;
+    }
+
+    public void setCanExchangeCards(boolean canExchange) {
+        mCanExchangeCards = canExchange;
+    }
+
+    public boolean canExchangeCards() {
+        return mCanExchangeCards;
     }
 }

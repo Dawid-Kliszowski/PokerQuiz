@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'retrolambda'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "pl.pokerquiz.pokerquiz"
         minSdkVersion 14
-        targetSdkVersion 20
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -26,7 +26,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.0.0'
     compile 'com.google.guava:guava:17.0'
     compile 'com.google.code.gson:gson:2.3'
     compile 'com.github.dmytrodanylyk.circular-progress-button:library:1.1.3'

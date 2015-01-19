@@ -32,6 +32,11 @@ public class PokerCardBigView extends RelativeLayout {
     private TextView mTxtvAnswerSecond;
     private TextView mTxtvAnswerThird;
     private TextView mTxtvAnswerFourth;
+    private View mViewOverlay;
+    private ImageView mImgvExchange;
+    private ImageView mImgvDeclaredCorrect;
+    private LinearLayout mLlSelfAnswered;
+    private ImageView mImgvAnsweredCorrect;
 
     private FullGameCard mFullGameCard;
 
@@ -63,6 +68,11 @@ public class PokerCardBigView extends RelativeLayout {
         mTxtvAnswerSecond = (TextView) findViewById(R.id.txtvAnswerSecond);
         mTxtvAnswerThird = (TextView) findViewById(R.id.txtvAnswerThird);
         mTxtvAnswerFourth = (TextView) findViewById(R.id.txtvAnswerFourth);
+        mViewOverlay = findViewById(R.id.viewOverlay);
+        mImgvExchange = (ImageView) findViewById(R.id.imgvExchange);
+        mImgvDeclaredCorrect = (ImageView) findViewById(R.id.imgvDeclaredCorrect);
+        mLlSelfAnswered = (LinearLayout) findViewById(R.id.llSelfAnswered);
+        mImgvAnsweredCorrect = (ImageView) findViewById(R.id.imgvAnsweredCorrect);
 
         mCardContentView = new CardContentView(getContext());
         mLlContent.addView(mCardContentView);
@@ -78,6 +88,22 @@ public class PokerCardBigView extends RelativeLayout {
         mImgvColorRight.setVisibility(VISIBLE);
     }
 
+    public void setExchangeIconVisible(boolean visible) {
+        if (visible) {
+            mImgvExchange.setVisibility(VISIBLE);
+        } else {
+            mImgvExchange.setVisibility(GONE);
+        }
+    }
+
+    public void setOverlayVisible(boolean visible) {
+        if (visible) {
+            mViewOverlay.setVisibility(VISIBLE);
+        } else {
+            mViewOverlay.setVisibility(GONE);
+        }
+    }
+
     public void setPokerCard(FullGameCard fullGameCard) {
         mFullGameCard = fullGameCard;
 
@@ -88,6 +114,21 @@ public class PokerCardBigView extends RelativeLayout {
 
         mCardContentView.setFigureImageBitmapParams(mFullGameCard.getPokerCard().getFigureResId(),
                 mFullGameCard.getPokerCard().getFigureIconParams());
+
+        if (mFullGameCard.isDeclaredCorrect()) {
+            mImgvDeclaredCorrect.setImageResource(R.drawable.green_point_big);
+        } else {
+            mImgvDeclaredCorrect.setImageResource(R.drawable.red_point_big);
+        }
+
+        if (mFullGameCard.isAnsweredByOwner()) {
+            mLlSelfAnswered.setVisibility(VISIBLE);
+            if (mFullGameCard.isAnsweredCorrect()) {
+                mImgvAnsweredCorrect.setImageResource(R.drawable.green_point_big);
+            } else {
+                mImgvAnsweredCorrect.setImageResource(R.drawable.red_point_big);
+            }
+        }
 
         if (mFullGameCard.getQuestion() != null) {
             QuizQuestion question = mFullGameCard.getQuestion();
